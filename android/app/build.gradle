@@ -23,6 +23,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -63,8 +64,13 @@ android {
 dependencies {
     // Core
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
     implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+
+    // Navigation (2.4.2)
+    implementation "androidx.navigation:navigation-fragment-ktx:2.4.2"
+    implementation "androidx.navigation:navigation-ui-ktx:2.4.2"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:2.4.2"
 
     // UI
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'

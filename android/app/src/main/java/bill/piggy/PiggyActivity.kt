@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,17 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.android.application' version '7.1.3' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.20' apply false
-    id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
-}
+package bill.piggy
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil.setContentView
+import bill.piggy.databinding.ActivityMainBinding
+
+class PiggyActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+    }
 }

@@ -20,34 +20,31 @@
  * SOFTWARE.
  */
 
-package bill.piggy.common
+package bill.piggy.features.add_transaction
 
-import android.app.Activity
-import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
-import kotlin.reflect.KProperty
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import bill.piggy.databinding.FragmentAddTransactionBinding
 
-class DataBindLazy<T : ViewDataBinding>(private val layoutId: Int) {
+class AddTransactionViewModel : ViewModel()
 
-    private var cached: T? = null
+class AddTransactionFragment : Fragment() {
 
-//    operator fun getValue(thisRef: AppCompatActivity, property: KProperty<*>): T =
-//        cached ?: DataBindingUtil.setContentView<T>(thisRef, layoutId).also {
-//            it.lifecycleOwner = thisRef
-//            cached = it
-//        }
+    private val viewModel by viewModels<AddTransactionViewModel>()
 
-    operator fun getValue(thisRef: AppCompatActivity, property: KProperty<*>): T {
-        val old = cached
-        if (old != null) return old
-
-        val new = DataBindingUtil.setContentView<T>(thisRef, layoutId).apply {
-            lifecycleOwner = thisRef
-        }
-        cached = new
-        return new
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = FragmentAddTransactionBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        return binding.root
     }
-}
 
-fun <T : ViewDataBinding> Activity.databind(layoutId: Int) = DataBindLazy<T>(layoutId)
+}

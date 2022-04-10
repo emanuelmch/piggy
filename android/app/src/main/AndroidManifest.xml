@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BillsPiggyBank">
         <activity
-            android:name=".monthly.MonthlyBudgetActivity"
+            android:name=".PiggyActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

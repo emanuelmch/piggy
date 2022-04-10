@@ -28,7 +28,7 @@
 
         <variable
             name="viewModel"
-            type="bill.piggy.monthly.MonthlyBudgetViewModel" />
+            type="bill.piggy.features.monthly.MonthlyBudgetViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -57,7 +57,6 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:contentDescription="@string/add_content_description"
-            android:onClick="@{() -> viewModel.addTransaction()}"
             app:srcCompat="@drawable/ic_add_24" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -20,36 +20,46 @@
  * SOFTWARE.
  */
 
-package bill.piggy.monthly
+package bill.piggy.features.monthly
 
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import bill.piggy.R
-import bill.piggy.common.databind
-import bill.piggy.databinding.ActivityMonthlyBudgetBinding
+import androidx.navigation.fragment.findNavController
+import bill.piggy.databinding.FragmentMonthlyBudgetBinding
 
 class MonthlyBudgetViewModel : ViewModel() {
-    private var counter = 0
-    private val _mainText = MutableLiveData("Click to count")
+    private val _mainText = MutableLiveData("Click add to add a new transaction")
     val mainText: LiveData<String> = _mainText
-
-    fun addTransaction() {
-        ++counter
-        _mainText.postValue("You've clicked $counter times")
-    }
 }
 
-class MonthlyBudgetActivity : AppCompatActivity() {
+class MonthlyBudgetFragment : Fragment() {
 
-    private val binding: ActivityMonthlyBudgetBinding by databind(R.layout.activity_monthly_budget)
     private val viewModel by viewModels<MonthlyBudgetViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = FragmentMonthlyBudgetBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
+        setupListeners(binding)
+        return binding.root
     }
+
+    private fun setupListeners(binding: FragmentMonthlyBudgetBinding) {
+        binding.addButton.setOnClickListener {
+            val direction =
+                MonthlyBudgetFragmentDirections.actionMonthlyBudgetFragmentToAddTransactionFragment()
+            findNavController().navigate(direction)
+        }
+    }
+
 }
