@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2022 Emanuel Machado da Silva
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,18 +19,9 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<resources>
-    <string name="app_name">Bill\'s Piggy Bank</string>
 
-    <!-- Common terms -->
-    <string name="amount">Amount</string>
-    <string name="budget">Budget</string>
-    <string name="payee">Payee</string>
-
-    <!-- Monthly Budget -->
-    <string name="add_content_description">Add new transaction</string>
-
-    <!-- Add Transaction -->
-    <string name="add_transaction">Add Transaction</string>
-    <string name="amount_prefix">$</string>
-</resources>
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@android:integer/config_mediumAnimTime"
+    android:fromXDelta="100%"
+    android:interpolator="@android:anim/decelerate_interpolator"
+    android:toXDelta="0%" />

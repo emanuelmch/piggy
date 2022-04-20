@@ -31,12 +31,31 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import bill.piggy.R
 import bill.piggy.databinding.FragmentMonthlyBudgetBinding
+
 
 class MonthlyBudgetViewModel : ViewModel() {
     private val _mainText = MutableLiveData("Click add to add a new transaction")
     val mainText: LiveData<String> = _mainText
+
+    private val _navigation = MutableLiveData<NavDirections?>()
+    val navigation: LiveData<NavDirections?> = _navigation
+
+    fun bind(binding: FragmentMonthlyBudgetBinding) {
+        binding.viewModel = this
+    }
+
+    // Events
+    fun onAddTransaction() {
+        _navigation.value = MonthlyBudgetFragmentDirections.actionAddTransaction()
+    }
+
+    fun onFinishedNavigation() {
+        _navigation.value = null
+    }
 }
 
 class MonthlyBudgetFragment : Fragment() {
@@ -49,17 +68,20 @@ class MonthlyBudgetFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentMonthlyBudgetBinding.inflate(inflater, container, false)
-        binding.viewModel = viewModel
-        setupListeners(binding)
+        binding.lifecycleOwner = viewLifecycleOwner
+        viewModel.bind(binding)
+
+        setupListeners()
+
         return binding.root
     }
 
-    private fun setupListeners(binding: FragmentMonthlyBudgetBinding) {
-        binding.addButton.setOnClickListener {
-            val direction =
-                MonthlyBudgetFragmentDirections.actionMonthlyBudgetFragmentToAddTransactionFragment()
-            findNavController().navigate(direction)
+    private fun setupListeners() {
+        viewModel.navigation.observe(viewLifecycleOwner) { direction ->
+            if (direction != null) {
+                findNavController().navigate(direction)
+                viewModel.onFinishedNavigation()
+            }
         }
     }
-
 }

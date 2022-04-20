@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,33 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.android.application' version '7.1.3' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
-    id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
+package bill.piggy.data.payees
+
+import bill.piggy.data.budgets.Budget
+import bill.piggy.data.budgets.BudgetRepository
+
+data class Payee(val name: String, val preferredBudget: Budget) {
+
+    val isValid: Boolean
+        get() = name.isNotBlank()
+
+    companion object {
+        val Invalid = Payee(name = "", preferredBudget = Budget.Invalid)
+    }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+class PayeeRepository {
+
+    private val budgetRepository = BudgetRepository()
+
+    fun fetchAll(): List<Payee> {
+        return listOf(
+            Payee("Ao Zeca", budgetRepository.getByName("Food")!!),
+            Payee("Angeloni", budgetRepository.getByName("Groceries")!!)
+        )
+    }
+
+    fun getByName(name: String): Payee? {
+        return fetchAll().find { it.name == name }
+    }
 }

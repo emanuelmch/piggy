@@ -11,7 +11,8 @@
         android:theme="@style/Theme.BillsPiggyBank">
         <activity
             android:name=".PiggyActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

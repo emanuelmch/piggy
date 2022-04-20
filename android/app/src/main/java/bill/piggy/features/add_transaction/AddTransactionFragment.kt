@@ -23,15 +23,72 @@
 package bill.piggy.features.add_transaction
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.navigation.findNavController
+import bill.piggy.common.CurrencyConverter
+import bill.piggy.common.ui.CurrencyTextInputFilter
+import bill.piggy.common.ui.addFilters
+import bill.piggy.data.budgets.Budget
+import bill.piggy.data.budgets.BudgetRepository
+import bill.piggy.data.payees.Payee
+import bill.piggy.data.payees.PayeeRepository
+import bill.piggy.data.transactions.Transaction
 import bill.piggy.databinding.FragmentAddTransactionBinding
 
-class AddTransactionViewModel : ViewModel()
+class AddTransactionViewModel : ViewModel() {
+
+    // FIXME: DI
+    private val budgetRepository = BudgetRepository()
+    private val payeeRepository = PayeeRepository()
+
+    fun bind(binding: FragmentAddTransactionBinding) {
+        binding.viewModel = this
+    }
+
+    // Setup properties
+    val payees: LiveData<List<Payee>> = liveData { emit(payeeRepository.fetchAll()) }
+    val budgets: LiveData<List<Budget>> = liveData { emit(budgetRepository.fetchAll()) }
+
+    // Input properties
+    private val _transaction = MutableLiveData(Transaction.Invalid)
+    val transaction: LiveData<Transaction> = _transaction.distinctUntilChanged()
+
+    val amountInCurrency = MutableLiveData("")
+
+    // Dynamic properties
+    val canSave: LiveData<Boolean> = transaction.map { it.isValid }
+
+    // Events
+    fun onAmountChanged(newValue: String) {
+        amountInCurrency.value = newValue
+        val newAmount = CurrencyConverter.moneyToCents(newValue)
+        _transaction.value = _transaction.value!!.copy(amount = newAmount)
+        Log.d("BILL", "Setting the new amount as ($newAmount)")
+    }
+
+    fun onPayeeChanged(newValue: String) {
+        val newPayee = payeeRepository.getByName(newValue)!!
+        _transaction.value = _transaction.value!!.copy(payee = newPayee, budget = newPayee.preferredBudget)
+    }
+
+    fun onBudgetChanged(newValue: String) {
+        val newBudget = budgetRepository.getByName(newValue)!!
+        _transaction.value = _transaction.value!!.copy(budget = newBudget)
+    }
+}
 
 class AddTransactionFragment : Fragment() {
 
@@ -43,8 +100,34 @@ class AddTransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentAddTransactionBinding.inflate(inflater, container, false)
-        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+        viewModel.bind(binding)
+
+        setupFields(binding, viewModel)
+        setupListeners(binding)
+
         return binding.root
     }
 
+    private fun setupFields(binding: FragmentAddTransactionBinding, viewModel: AddTransactionViewModel) {
+        binding.amount.editText?.addFilters(CurrencyTextInputFilter)
+        viewModel.payees.observe(viewLifecycleOwner) { payees ->
+            val payeeNames = payees.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, payeeNames)
+            (binding.payee.editText as AutoCompleteTextView).threshold = Int.MAX_VALUE
+            (binding.payee.editText as AutoCompleteTextView).setAdapter(adapter)
+        }
+        viewModel.budgets.observe(viewLifecycleOwner) { budgets ->
+            val budgetNames = budgets.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, budgetNames)
+            (binding.budget.editText as AutoCompleteTextView).threshold = Int.MAX_VALUE
+            (binding.budget.editText as AutoCompleteTextView).setAdapter(adapter)
+        }
+    }
+
+    private fun setupListeners(binding: FragmentAddTransactionBinding) {
+        binding.toolbar.setNavigationOnClickListener { view ->
+            view.findNavController().navigateUp()
+        }
+    }
 }

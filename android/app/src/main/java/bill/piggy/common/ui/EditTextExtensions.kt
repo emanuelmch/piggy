@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,33 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.android.application' version '7.1.3' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
-    id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
+package bill.piggy.common.ui
+
+import android.text.InputFilter
+import android.text.Spanned
+import android.widget.EditText
+
+object CurrencyTextInputFilter : InputFilter {
+    override fun filter(
+        source: CharSequence, start: Int, end: Int,
+        dest: Spanned, dstart: Int, dend: Int
+    ): CharSequence? {
+        val result = dest.subSequence(0, dstart).toString() +
+                source.toString() +
+                dest.subSequence(dend, dest.length)
+
+        val periodIndex = result.indexOf('.')
+        // If there are more than 2 characters after the '.', reject the change
+        if (periodIndex > -1 && result.length > (periodIndex + 3)) {
+            return ""
+        }
+
+        return null
+    }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+fun EditText.addFilters(vararg filters: InputFilter) {
+    val oldFilters = this.filters
+    val newFilters = (oldFilters + filters).distinct()
+    this.filters = newFilters.toTypedArray()
 }

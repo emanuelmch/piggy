@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,29 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.android.application' version '7.1.3' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
-    id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
-}
+package bill.piggy.common
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+import bill.piggy.common.CurrencyConverter.moneyToCents
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+
+class CurrencyConverterTests {
+
+    @Test
+    fun `test moneyToCents without a period`() {
+        assertThat(moneyToCents(""), `is`(equalTo(0)))
+        assertThat(moneyToCents("1"), `is`(equalTo(100)))
+        assertThat(moneyToCents("123456789"), `is`(equalTo(12345678900)))
+    }
+
+    @Test
+    fun `test moneyToCents with a period`() {
+        assertThat(moneyToCents(".1"), `is`(equalTo(10)))
+        assertThat(moneyToCents("0.1"), `is`(equalTo(10)))
+        assertThat(moneyToCents("0.01"), `is`(equalTo(1)))
+        assertThat(moneyToCents("10.01"), `is`(equalTo(1001)))
+    }
+
 }

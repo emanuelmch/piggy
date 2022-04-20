@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,17 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.android.application' version '7.1.3' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
-    id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
-}
+package bill.piggy.common
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+object CurrencyConverter {
+
+    fun moneyToCents(money: String): Long {
+        if (money.isEmpty()) return 0
+
+        val splitted = money.split('.')
+
+        var cents = 100 * (splitted[0].toLongOrNull() ?: 0)
+        cents += (splitted.getOrNull(1) ?: "").padEnd(2, '0').toLong()
+        return cents
+    }
 }
