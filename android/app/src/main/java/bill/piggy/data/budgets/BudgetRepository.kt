@@ -22,13 +22,13 @@
 
 package bill.piggy.data.budgets
 
-data class Budget(val name: String) {
+data class Budget(val name: String, val moneyInCents: Long) {
 
     val isValid: Boolean
         get() = name.isNotBlank()
 
     companion object {
-        val Invalid = Budget(name = "")
+        val Invalid = Budget(name = "", 0)
     }
 }
 
@@ -44,7 +44,7 @@ class BudgetRepository {
             "Investiments",
             "Studies",
             "Rainy Day"
-        ).map { Budget(it) }
+        ).map { Budget(it, 100) }
     }
 
     fun getByName(name: String): Budget? {

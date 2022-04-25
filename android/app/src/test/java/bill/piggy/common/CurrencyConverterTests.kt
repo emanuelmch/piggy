@@ -22,6 +22,7 @@
 
 package bill.piggy.common
 
+import bill.piggy.common.CurrencyConverter.centsToMoney
 import bill.piggy.common.CurrencyConverter.moneyToCents
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -45,4 +46,32 @@ class CurrencyConverterTests {
         assertThat(moneyToCents("10.01"), `is`(equalTo(1001)))
     }
 
+    @Test
+    fun `test centsToMoney with cents`() {
+        assertThat(centsToMoney(1), `is`(equalTo("$ 0.01")))
+        assertThat(centsToMoney(9), `is`(equalTo("$ 0.09")))
+        assertThat(centsToMoney(10), `is`(equalTo("$ 0.10")))
+        assertThat(centsToMoney(99), `is`(equalTo("$ 0.99")))
+        assertThat(centsToMoney(101), `is`(equalTo("$ 1.01")))
+        assertThat(centsToMoney(199), `is`(equalTo("$ 1.99")))
+        assertThat(centsToMoney(999), `is`(equalTo("$ 9.99")))
+        assertThat(centsToMoney(99999), `is`(equalTo("$ 999.99")))
+        assertThat(centsToMoney(100001), `is`(equalTo("$ 1,000.01")))
+        assertThat(centsToMoney(99999999), `is`(equalTo("$ 999,999.99")))
+        assertThat(centsToMoney(999_999_999_999_01L), `is`(equalTo("$ 999,999,999,999.01")))
+        assertThat(centsToMoney(999_999_999_999_99L), `is`(equalTo("$ 999,999,999,999.99")))
+    }
+
+    @Test
+    fun `test centsToMoney without cents`() {
+        Double.MAX_VALUE
+        assertThat(centsToMoney(0), `is`(equalTo("$ 0")))
+        assertThat(centsToMoney(1_00), `is`(equalTo("$ 1")))
+        assertThat(centsToMoney(999_00), `is`(equalTo("$ 999")))
+        assertThat(centsToMoney(1_000_00), `is`(equalTo("$ 1,000")))
+        assertThat(centsToMoney(999_999_00), `is`(equalTo("$ 999,999")))
+        assertThat(centsToMoney(999_999_00), `is`(equalTo("$ 999,999")))
+        assertThat(centsToMoney(999_999_999_999_00L), `is`(equalTo("$ 999,999,999,999")))
+        assertThat(centsToMoney(1_000_000_000_000_00L), `is`(equalTo("$ 1,000,000,000,000")))
+    }
 }

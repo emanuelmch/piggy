@@ -20,29 +20,35 @@
   ~ SOFTWARE.
   -->
 
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/monthlyBudgetFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <fragment
-        android:id="@+id/monthlyBudgetFragment"
-        android:name="bill.piggy.features.monthly.MonthlyBudgetFragment"
-        android:label="MonthlyBudgetFragment"
-        tools:layout="@layout/monthly_budget_fragment">
-        <action
-            android:id="@+id/action_add_transaction"
-            app:destination="@id/addTransactionFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@null"
-            app:popEnterAnim="@android:anim/fade_in"
-            app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
+    <data>
 
-    <fragment
-        android:id="@+id/addTransactionFragment"
-        android:name="bill.piggy.features.add_transaction.AddTransactionFragment"
-        android:label="AddTransactionFragment"
-        tools:layout="@layout/add_transaction_fragment" />
-</navigation>
+        <variable
+            name="viewModel"
+            type="bill.piggy.features.monthly.CategoryViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            style="?android:attr/dropDownItemStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/listPreferredItemHeightSmall"
+            android:ellipsize="end"
+            tools:text="Everyday Expenses"
+            android:paddingStart="?attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?attr/listPreferredItemPaddingEnd"
+            android:singleLine="true"
+            android:text="@{ viewModel.name }"
+            android:textAppearance="?attr/textAppearanceCaption" />
+    </LinearLayout>
+</layout>

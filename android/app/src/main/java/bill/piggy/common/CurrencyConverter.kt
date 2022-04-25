@@ -22,7 +22,18 @@
 
 package bill.piggy.common
 
+import java.text.DecimalFormat
+
 object CurrencyConverter {
+
+    @JvmStatic
+    fun centsToMoney(cents: Long): String {
+        assert(cents in 0..1_000_000_000_000_00L)
+
+        val pattern = if (cents % 100L == 0L) "$ #,##0" else "$ #,##0.00"
+        val formatter = DecimalFormat(pattern)
+        return formatter.format(cents.toDouble() / 100.0)
+    }
 
     fun moneyToCents(money: String): Long {
         if (money.isEmpty()) return 0

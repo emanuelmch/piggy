@@ -46,7 +46,7 @@ import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.data.payees.Payee
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
-import bill.piggy.databinding.FragmentAddTransactionBinding
+import bill.piggy.databinding.AddTransactionFragmentBinding
 
 class AddTransactionViewModel : ViewModel() {
 
@@ -54,7 +54,7 @@ class AddTransactionViewModel : ViewModel() {
     private val budgetRepository = BudgetRepository()
     private val payeeRepository = PayeeRepository()
 
-    fun bind(binding: FragmentAddTransactionBinding) {
+    fun bind(binding: AddTransactionFragmentBinding) {
         binding.viewModel = this
     }
 
@@ -99,7 +99,7 @@ class AddTransactionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentAddTransactionBinding.inflate(inflater, container, false)
+        val binding = AddTransactionFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.bind(binding)
 
@@ -109,7 +109,7 @@ class AddTransactionFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupFields(binding: FragmentAddTransactionBinding, viewModel: AddTransactionViewModel) {
+    private fun setupFields(binding: AddTransactionFragmentBinding, viewModel: AddTransactionViewModel) {
         binding.amount.editText?.addFilters(CurrencyTextInputFilter)
         viewModel.payees.observe(viewLifecycleOwner) { payees ->
             val payeeNames = payees.map { it.name }
@@ -125,7 +125,7 @@ class AddTransactionFragment : Fragment() {
         }
     }
 
-    private fun setupListeners(binding: FragmentAddTransactionBinding) {
+    private fun setupListeners(binding: AddTransactionFragmentBinding) {
         binding.toolbar.setNavigationOnClickListener { view ->
             view.findNavController().navigateUp()
         }

@@ -25,12 +25,12 @@ package bill.piggy
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil.setContentView
-import bill.piggy.databinding.ActivityMainBinding
+import bill.piggy.databinding.MainActivityBinding
 
 class PiggyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        setContentView<MainActivityBinding>(this, R.layout.main_activity)
     }
 }
