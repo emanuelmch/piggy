@@ -20,40 +20,24 @@
  * SOFTWARE.
  */
 
-package bill.piggy.data.budgets
+package bill.piggy.data.common
 
-data class Budget(
-    val uid: Int,
-    val name: String,
-    val moneyInCents: Long
-) {
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import bill.piggy.data.budgets.BudgetLocalDataSource
+import bill.piggy.data.budgets.RoomBudget
 
-    val isValid: Boolean
-        get() = name.isNotBlank()
+@Database(entities = [RoomBudget::class], version = 1, exportSchema = false)
+abstract class LocalDatabase : RoomDatabase() {
+    abstract fun budgetDao(): BudgetLocalDataSource
 
     companion object {
-        val Invalid = Budget(uid = 0, name = "", moneyInCents = 0)
-    }
-}
-
-class BudgetRepository(
-    private val localDataSource: BudgetLocalDataSource
-) {
-
-    fun getAll(): List<Budget> {
-        return localDataSource.watchAll().map(RoomBudget::asBudget) + listOf(
-            "Food",
-            "Groceries",
-            "Monthly Bills",
-            "Fun",
-            "Socializing",
-            "Investiments",
-            "Studies",
-            "Rainy Day"
-        ).map { Budget(0, it, 100) }
-    }
-
-    fun getByName(name: String): Budget? {
-        return getAll().find { it.name == name }
+        fun create(applicationContext: Context) = Room.databaseBuilder(
+            applicationContext,
+            LocalDatabase::class.java,
+            "piggy-bank"
+        ).build()
     }
 }

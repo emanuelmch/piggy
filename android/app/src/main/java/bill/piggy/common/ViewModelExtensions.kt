@@ -20,40 +20,15 @@
  * SOFTWARE.
  */
 
-package bill.piggy.data.budgets
+package bill.piggy.common
 
-data class Budget(
-    val uid: Int,
-    val name: String,
-    val moneyInCents: Long
-) {
+import androidx.lifecycle.LiveDataScope
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlin.experimental.ExperimentalTypeInference
 
-    val isValid: Boolean
-        get() = name.isNotBlank()
-
-    companion object {
-        val Invalid = Budget(uid = 0, name = "", moneyInCents = 0)
-    }
-}
-
-class BudgetRepository(
-    private val localDataSource: BudgetLocalDataSource
-) {
-
-    fun getAll(): List<Budget> {
-        return localDataSource.watchAll().map(RoomBudget::asBudget) + listOf(
-            "Food",
-            "Groceries",
-            "Monthly Bills",
-            "Fun",
-            "Socializing",
-            "Investiments",
-            "Studies",
-            "Rainy Day"
-        ).map { Budget(0, it, 100) }
-    }
-
-    fun getByName(name: String): Budget? {
-        return getAll().find { it.name == name }
-    }
-}
+@OptIn(ExperimentalTypeInference::class)
+fun <T> ViewModel.backgroundLiveData(@BuilderInference block: suspend LiveDataScope<T>.() -> Unit) =
+    liveData(context = viewModelScope.coroutineContext + Dispatchers.IO, block = block)

@@ -35,11 +35,11 @@ data class Payee(val name: String, val preferredBudget: Budget) {
     }
 }
 
-class PayeeRepository {
+class PayeeRepository(
+    private val budgetRepository: BudgetRepository
+) {
 
-    private val budgetRepository = BudgetRepository()
-
-    fun fetchAll(): List<Payee> {
+    fun getAll(): List<Payee> {
         return listOf(
             Payee("Ao Zeca", budgetRepository.getByName("Food")!!),
             Payee("Angeloni", budgetRepository.getByName("Groceries")!!)
@@ -47,6 +47,6 @@ class PayeeRepository {
     }
 
     fun getByName(name: String): Payee? {
-        return fetchAll().find { it.name == name }
+        return getAll().find { it.name == name }
     }
 }

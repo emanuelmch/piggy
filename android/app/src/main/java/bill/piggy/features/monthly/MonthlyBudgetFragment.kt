@@ -49,7 +49,8 @@ class CategoryViewModel(val name: String) : BindableViewModel {
 
 class BudgetViewModel(val budget: Budget) : BindableViewModel {
 
-    constructor(name: String, money: Long) : this(Budget(name, money)) {}
+    // FIXME: Delete this constructor
+    constructor(name: String, money: Long) : this(Budget(0, name, money)) {}
 
     override val layoutId get() = R.layout.monthly_budget_item_budget
     override val viewType get() = 1

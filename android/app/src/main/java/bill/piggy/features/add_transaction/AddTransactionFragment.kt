@@ -23,7 +23,6 @@
 package bill.piggy.features.add_transaction
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,10 +33,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import bill.piggy.common.CurrencyConverter
+import bill.piggy.common.backgroundLiveData
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
 import bill.piggy.data.budgets.Budget
@@ -46,6 +46,8 @@ import bill.piggy.data.payees.Payee
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
 import bill.piggy.databinding.AddTransactionFragmentBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AddTransactionViewModel(
@@ -58,8 +60,8 @@ class AddTransactionViewModel(
     }
 
     // Setup properties
-    val payees: LiveData<List<Payee>> = liveData { emit(payeeRepository.fetchAll()) }
-    val budgets: LiveData<List<Budget>> = liveData { emit(budgetRepository.fetchAll()) }
+    val payees: LiveData<List<Payee>> = backgroundLiveData { emit(payeeRepository.getAll()) }
+    val budgets: LiveData<List<Budget>> = backgroundLiveData { emit(budgetRepository.getAll()) }
 
     // Input properties
     private val _transaction = MutableLiveData(Transaction.Invalid)
@@ -75,17 +77,22 @@ class AddTransactionViewModel(
         amountInCurrency.value = newValue
         val newAmount = CurrencyConverter.moneyToCents(newValue)
         _transaction.value = _transaction.value!!.copy(amount = newAmount)
-        Log.d("BILL", "Setting the new amount as ($newAmount)")
     }
 
     fun onPayeeChanged(newValue: String) {
-        val newPayee = payeeRepository.getByName(newValue)!!
-        _transaction.value = _transaction.value!!.copy(payee = newPayee, budget = newPayee.preferredBudget)
+        viewModelScope.launch(Dispatchers.IO) {
+            val newPayee = payeeRepository.getByName(newValue)!!
+            val newTransaction = _transaction.value!!.copy(payee = newPayee, budget = newPayee.preferredBudget)
+            _transaction.postValue(newTransaction)
+        }
     }
 
     fun onBudgetChanged(newValue: String) {
-        val newBudget = budgetRepository.getByName(newValue)!!
-        _transaction.value = _transaction.value!!.copy(budget = newBudget)
+        viewModelScope.launch(Dispatchers.IO) {
+            val newBudget = budgetRepository.getByName(newValue)!!
+            val newTransaction = _transaction.value!!.copy(budget = newBudget)
+            _transaction.postValue(newTransaction)
+        }
     }
 }
 

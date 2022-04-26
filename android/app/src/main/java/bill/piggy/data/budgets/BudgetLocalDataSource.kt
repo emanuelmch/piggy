@@ -22,38 +22,30 @@
 
 package bill.piggy.data.budgets
 
-data class Budget(
-    val uid: Int,
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+
+
+@Entity(tableName = "budget")
+data class RoomBudget(
+    @PrimaryKey val uid: Int,
     val name: String,
     val moneyInCents: Long
 ) {
 
-    val isValid: Boolean
-        get() = name.isNotBlank()
-
-    companion object {
-        val Invalid = Budget(uid = 0, name = "", moneyInCents = 0)
-    }
+    val asBudget: Budget
+        get() = Budget(uid, name, moneyInCents)
 }
 
-class BudgetRepository(
-    private val localDataSource: BudgetLocalDataSource
-) {
+@Dao
+interface BudgetLocalDataSource {
 
-    fun getAll(): List<Budget> {
-        return localDataSource.watchAll().map(RoomBudget::asBudget) + listOf(
-            "Food",
-            "Groceries",
-            "Monthly Bills",
-            "Fun",
-            "Socializing",
-            "Investiments",
-            "Studies",
-            "Rainy Day"
-        ).map { Budget(0, it, 100) }
-    }
+    @Query("SELECT * FROM budget")
+    fun watchAll(): List<RoomBudget>
 
-    fun getByName(name: String): Budget? {
-        return getAll().find { it.name == name }
-    }
+    @Insert
+    fun insert(vararg budgets: RoomBudget)
 }
