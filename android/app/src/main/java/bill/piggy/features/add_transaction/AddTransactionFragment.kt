@@ -30,7 +30,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,12 +46,12 @@ import bill.piggy.data.payees.Payee
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
 import bill.piggy.databinding.AddTransactionFragmentBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AddTransactionViewModel : ViewModel() {
-
-    // FIXME: DI
-    private val budgetRepository = BudgetRepository()
-    private val payeeRepository = PayeeRepository()
+class AddTransactionViewModel(
+    private val budgetRepository: BudgetRepository,
+    private val payeeRepository: PayeeRepository
+) : ViewModel() {
 
     fun bind(binding: AddTransactionFragmentBinding) {
         binding.viewModel = this
@@ -92,7 +91,7 @@ class AddTransactionViewModel : ViewModel() {
 
 class AddTransactionFragment : Fragment() {
 
-    private val viewModel by viewModels<AddTransactionViewModel>()
+    private val viewModel: AddTransactionViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
