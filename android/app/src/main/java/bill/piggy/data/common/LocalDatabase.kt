@@ -31,9 +31,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetLocalDataSource
 import bill.piggy.data.budgets.RoomBudget
+import bill.piggy.data.payees.PartialRoomPayee
+import bill.piggy.data.payees.PayeeLocalDataSource
+import bill.piggy.data.payees.RoomPayee
 
 // Yeah, yeah, I know I should be using a CoroutineWorker instead, but this is
 // just for debugging NOW and I don't wanna add a dependency just for that
@@ -48,7 +50,7 @@ private class DebugDatabasePopulator : AsyncTask<Unit, Unit, Unit>() {
         val specials = "Specials"
         val rainyDayFunds = "Rainy Day Funds"
 
-        LocalDatabase.instance.budgetDao().insert(
+        LocalDatabase.instance.budgetDataSource().insert(
             RoomBudget(0, "Nubank", previousDebt, 12345),
             RoomBudget(0, "Santander", previousDebt, 4321),
             RoomBudget(0, "Food & Groceries", everydayExpenses, 18000),
@@ -69,12 +71,21 @@ private class DebugDatabasePopulator : AsyncTask<Unit, Unit, Unit>() {
             RoomBudget(0, "Health", rainyDayFunds, 100000),
             RoomBudget(0, "Investment Funds", rainyDayFunds, 78912),
         )
+
+        val houseBudget:RoomBudget = LocalDatabase.instance.budgetDataSource().getByName("House")
+        val groceriesBudget:RoomBudget = LocalDatabase.instance.budgetDataSource().getByName("Food & Groceries")
+
+        LocalDatabase.instance.payeeDataSource().insert(
+            PartialRoomPayee(0, "Rent", houseBudget.uid),
+            PartialRoomPayee(0, "Angeloni", groceriesBudget.uid)
+        )
     }
 }
 
-@Database(entities = [RoomBudget::class], version = 1, exportSchema = false)
+@Database(entities = [RoomBudget::class, PartialRoomPayee::class], version = 1, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
-    abstract fun budgetDao(): BudgetLocalDataSource
+    abstract fun budgetDataSource(): BudgetLocalDataSource
+    abstract fun payeeDataSource(): PayeeLocalDataSource
 
     object DebugOnlyDatabaseCreator : RoomDatabase.Callback() {
 

@@ -26,7 +26,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 
 data class Budget(
-    val uid: Int,
+    val uid: Long,
     val name: String,
     val category: String,
     val moneyInCents: Long

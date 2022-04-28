@@ -74,7 +74,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
                         android:onTextChanged="@{ (text, start, before, count) -> viewModel.onAmountChanged(text.toString()) }"
-                        android:text="@{ viewModel.amountInCurrency }" />
+                        android:text="@{ viewModel.uiState.amountInCurrency }" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="none"
                         android:onTextChanged="@{ (text, start, before, count) -> viewModel.onPayeeChanged(text.toString()) }"
-                        android:text="@{ viewModel.transaction.payee.name }" />
+                        android:text="@{ viewModel.uiState.transaction.payee.name }" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -104,7 +104,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="none"
                         android:onTextChanged="@{ (text, start, before, count) -> viewModel.onBudgetChanged(text.toString()) }"
-                        android:text="@{ viewModel.transaction.budget.name }" />
+                        android:text="@{ viewModel.uiState.transaction.budget.name }" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
@@ -116,7 +116,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:contentDescription="@string/add_content_description"
-            android:enabled="@{viewModel.canSave}"
+            android:enabled="@{ viewModel.uiState.canSave }"
             app:srcCompat="@drawable/ic_check_24" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

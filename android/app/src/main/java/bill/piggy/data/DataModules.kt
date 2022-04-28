@@ -31,7 +31,8 @@ import org.koin.dsl.module
 val dataModules = module {
 
     single { LocalDatabase.instance }
-    single { get<LocalDatabase>().budgetDao() }
+    single { get<LocalDatabase>().budgetDataSource() }
+    single { get<LocalDatabase>().payeeDataSource() }
 
     single { BudgetRepository(get()) }
     single { PayeeRepository(get()) }

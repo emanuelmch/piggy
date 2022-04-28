@@ -23,33 +23,52 @@
 package bill.piggy.data.payees
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.Transaction
 import bill.piggy.data.budgets.Budget
+import bill.piggy.data.budgets.RoomBudget
 
-data class Payee(
-    val uid: Int,
+@Entity(
+    tableName = "payee",
+    foreignKeys = [
+        ForeignKey(entity = RoomBudget::class, parentColumns = ["uid"], childColumns = ["preferred_budget_id"])
+    ],
+    indices = [Index("preferred_budget_id")]
+)
+data class PartialRoomPayee(
+    @PrimaryKey(autoGenerate = true) val uid: Int,
     val name: String,
-    val preferredBudget: Budget?
+    @ColumnInfo(name = "preferred_budget_id") val preferredBudgetId: Long
+)
+
+data class RoomPayee(
+    @Embedded
+    val payee: PartialRoomPayee,
+
+    @Relation(parentColumn = "preferred_budget_id", entityColumn = "uid")
+    val preferredBudget: RoomBudget?
 ) {
 
-    val isValid: Boolean
-        get() = name.isNotBlank()
-
-    companion object {
-        val Invalid = Payee(uid = 0, name = "", preferredBudget = Budget.Invalid)
-    }
+    val asPayee: Payee
+        get() = Payee(payee.uid, payee.name, preferredBudget?.asBudget)
 }
 
-class PayeeRepository(
-    private val localDataSource: PayeeLocalDataSource
-) {
+@Dao
+interface PayeeLocalDataSource {
 
-    fun getAll() = localDataSource.watchAll().map { it.map(RoomPayee::asPayee) }
+    @Transaction
+    @Query("SELECT * FROM payee")
+    fun watchAll(): LiveData<List<RoomPayee>>
 
-    // FIXME: use localDataSource directly instead
-    fun getByName(name: String): LiveData<Payee?> {
-        return getAll().map { all ->
-            all.find { it.name == name }
-        }
-    }
+    @Insert
+    fun insert(vararg payees: PartialRoomPayee)
 }

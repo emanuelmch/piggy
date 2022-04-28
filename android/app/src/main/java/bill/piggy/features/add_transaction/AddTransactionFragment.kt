@@ -29,73 +29,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
-import bill.piggy.common.CurrencyConverter
-import bill.piggy.common.awaitValue
-import bill.piggy.common.backgroundLiveData
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
-import bill.piggy.data.budgets.Budget
-import bill.piggy.data.budgets.BudgetRepository
-import bill.piggy.data.payees.Payee
-import bill.piggy.data.payees.PayeeRepository
-import bill.piggy.data.transactions.Transaction
 import bill.piggy.databinding.AddTransactionFragmentBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
-class AddTransactionViewModel(
-    private val budgetRepository: BudgetRepository,
-    private val payeeRepository: PayeeRepository
-) : ViewModel() {
-
-    fun bind(binding: AddTransactionFragmentBinding) {
-        binding.viewModel = this
-    }
-
-    // Setup properties
-    val payees: LiveData<List<Payee>> = backgroundLiveData { emit(payeeRepository.getAll()) }
-    val budgets: LiveData<List<Budget>> = budgetRepository.getAll()
-
-    // Input properties
-    private val _transaction = MutableLiveData(Transaction.Invalid)
-    val transaction: LiveData<Transaction> = _transaction.distinctUntilChanged()
-
-    val amountInCurrency = MutableLiveData("")
-
-    // Dynamic properties
-    val canSave: LiveData<Boolean> = transaction.map { it.isValid }
-
-    // Events
-    fun onAmountChanged(newValue: String) {
-        amountInCurrency.value = newValue
-        val newAmount = CurrencyConverter.moneyToCents(newValue)
-        _transaction.value = _transaction.value!!.copy(amount = newAmount)
-    }
-
-    fun onPayeeChanged(newValue: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val newPayee = payeeRepository.getByName(newValue)!!
-            val newTransaction = _transaction.value!!.copy(payee = newPayee, budget = newPayee.preferredBudget)
-            _transaction.postValue(newTransaction)
-        }
-    }
-
-    fun onBudgetChanged(newValue: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val newBudget = budgetRepository.getByName(newValue).awaitValue()!!
-            val newTransaction = _transaction.value!!.copy(budget = newBudget)
-            _transaction.postValue(newTransaction)
-        }
-    }
-}
 
 class AddTransactionFragment : Fragment() {
 
@@ -108,7 +46,7 @@ class AddTransactionFragment : Fragment() {
     ): View {
         val binding = AddTransactionFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel.bind(binding)
+        binding.viewModel = viewModel
 
         setupFields(binding, viewModel)
         setupListeners(binding)
