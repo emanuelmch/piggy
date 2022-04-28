@@ -22,9 +22,13 @@
 
 package bill.piggy.data.budgets
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
+
 data class Budget(
     val uid: Int,
     val name: String,
+    val category: String,
     val moneyInCents: Long
 ) {
 
@@ -32,7 +36,7 @@ data class Budget(
         get() = name.isNotBlank()
 
     companion object {
-        val Invalid = Budget(uid = 0, name = "", moneyInCents = 0)
+        val Invalid = Budget(uid = 0, name = "", category = "", moneyInCents = 0)
     }
 }
 
@@ -40,20 +44,12 @@ class BudgetRepository(
     private val localDataSource: BudgetLocalDataSource
 ) {
 
-    fun getAll(): List<Budget> {
-        return localDataSource.watchAll().map(RoomBudget::asBudget) + listOf(
-            "Food",
-            "Groceries",
-            "Monthly Bills",
-            "Fun",
-            "Socializing",
-            "Investiments",
-            "Studies",
-            "Rainy Day"
-        ).map { Budget(0, it, 100) }
-    }
+    fun getAll() = localDataSource.watchAll().map { it.map(RoomBudget::asBudget) }
 
-    fun getByName(name: String): Budget? {
-        return getAll().find { it.name == name }
+    // FIXME: use localDataSource directly instead
+    fun getByName(name: String): LiveData<Budget?> {
+        return getAll().map { all ->
+            all.find { it.name == name }
+        }
     }
 }

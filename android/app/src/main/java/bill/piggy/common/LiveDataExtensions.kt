@@ -20,34 +20,38 @@
  * SOFTWARE.
  */
 
-package bill.piggy.data.budgets
+package bill.piggy.common
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
+import androidx.lifecycle.Observer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
+//FIXME: DELETE THIS MONSTROSITY
+fun <T> LiveData<T>.awaitValue(): T {
+    var data: T? = null
+    val latch = CountDownLatch(1)
+    val observer = Observer<T> { value ->
+        data = value
+        latch.countDown()
+    }
 
-@Entity(tableName = "budget")
-data class RoomBudget(
-    @PrimaryKey(autoGenerate = true) val uid: Int,
-    val name: String,
-    val category: String,
-    val moneyInCents: Long
-) {
+    try {
+        Handler(Looper.getMainLooper()).post {
+            this.observeForever(observer)
+        }
 
-    val asBudget: Budget
-        get() = Budget(uid, name, category, moneyInCents)
-}
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            throw TimeoutException()
+        }
+    } finally {
+        Handler(Looper.getMainLooper()).post {
+            this.removeObserver(observer)
+        }
+    }
 
-@Dao
-interface BudgetLocalDataSource {
-
-    @Query("SELECT * FROM budget")
-    fun watchAll(): LiveData<List<RoomBudget>>
-
-    @Insert
-    fun insert(vararg budgets: RoomBudget)
+    return data!!
 }

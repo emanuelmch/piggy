@@ -20,34 +20,27 @@
  * SOFTWARE.
  */
 
-package bill.piggy.data.budgets
+package bill.piggy.test
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 
+@OptIn(ExperimentalCoroutinesApi::class)
+class TestCoroutineRule constructor(private val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()) : TestWatcher() {
 
-@Entity(tableName = "budget")
-data class RoomBudget(
-    @PrimaryKey(autoGenerate = true) val uid: Int,
-    val name: String,
-    val category: String,
-    val moneyInCents: Long
-) {
+    override fun starting(description: Description?) {
+        super.starting(description)
+        Dispatchers.setMain(dispatcher)
+    }
 
-    val asBudget: Budget
-        get() = Budget(uid, name, category, moneyInCents)
-}
-
-@Dao
-interface BudgetLocalDataSource {
-
-    @Query("SELECT * FROM budget")
-    fun watchAll(): LiveData<List<RoomBudget>>
-
-    @Insert
-    fun insert(vararg budgets: RoomBudget)
+    override fun finished(description: Description?) {
+        Dispatchers.resetMain()
+        super.finished(description)
+    }
 }

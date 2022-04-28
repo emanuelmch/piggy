@@ -20,34 +20,35 @@
  * SOFTWARE.
  */
 
-package bill.piggy.data.budgets
+package bill.piggy.test
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
+import androidx.annotation.CallSuper
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import io.mockk.unmockkAll
+import org.junit.After
+import org.junit.Rule
 
+interface AsyncTest : CoroutineTest, TaskExecutorTest
 
-@Entity(tableName = "budget")
-data class RoomBudget(
-    @PrimaryKey(autoGenerate = true) val uid: Int,
-    val name: String,
-    val category: String,
-    val moneyInCents: Long
-) {
+interface CoroutineTest {
 
-    val asBudget: Budget
-        get() = Budget(uid, name, category, moneyInCents)
+    @get:Rule
+    val coroutineRule: TestCoroutineRule
+        get() = TestCoroutineRule()
 }
 
-@Dao
-interface BudgetLocalDataSource {
+interface TaskExecutorTest {
 
-    @Query("SELECT * FROM budget")
-    fun watchAll(): LiveData<List<RoomBudget>>
+    @get:Rule
+    val instantExecutorRule: InstantTaskExecutorRule
+        get() = InstantTaskExecutorRule()
+}
 
-    @Insert
-    fun insert(vararg budgets: RoomBudget)
+interface MockkTest {
+
+    @After
+    @CallSuper
+    fun tearDown() {
+        unmockkAll()
+    }
 }

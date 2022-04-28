@@ -22,6 +22,7 @@
 
 package bill.piggy.data.payees
 
+import bill.piggy.common.awaitValue
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
 
@@ -40,9 +41,11 @@ class PayeeRepository(
 ) {
 
     fun getAll(): List<Payee> {
+        val foodBudget: Budget = budgetRepository.getByName("Food & Groceries").awaitValue()!!
+        val socializingBudget: Budget = budgetRepository.getByName("Socializing").awaitValue()!!
         return listOf(
-            Payee("Ao Zeca", budgetRepository.getByName("Food")!!),
-            Payee("Angeloni", budgetRepository.getByName("Groceries")!!)
+            Payee("Angeloni", foodBudget),
+            Payee("Ao Zeca", socializingBudget)
         )
     }
 

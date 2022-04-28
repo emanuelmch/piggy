@@ -37,6 +37,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import bill.piggy.common.CurrencyConverter
+import bill.piggy.common.awaitValue
 import bill.piggy.common.backgroundLiveData
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
@@ -61,7 +62,7 @@ class AddTransactionViewModel(
 
     // Setup properties
     val payees: LiveData<List<Payee>> = backgroundLiveData { emit(payeeRepository.getAll()) }
-    val budgets: LiveData<List<Budget>> = backgroundLiveData { emit(budgetRepository.getAll()) }
+    val budgets: LiveData<List<Budget>> = budgetRepository.getAll()
 
     // Input properties
     private val _transaction = MutableLiveData(Transaction.Invalid)
@@ -89,7 +90,7 @@ class AddTransactionViewModel(
 
     fun onBudgetChanged(newValue: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val newBudget = budgetRepository.getByName(newValue)!!
+            val newBudget = budgetRepository.getByName(newValue).awaitValue()!!
             val newTransaction = _transaction.value!!.copy(budget = newBudget)
             _transaction.postValue(newTransaction)
         }
@@ -98,7 +99,7 @@ class AddTransactionViewModel(
 
 class AddTransactionFragment : Fragment() {
 
-    private val viewModel: AddTransactionViewModel by viewModel()
+    private val viewModel by viewModel<AddTransactionViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

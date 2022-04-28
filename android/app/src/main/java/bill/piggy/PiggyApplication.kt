@@ -23,6 +23,8 @@
 package bill.piggy
 
 import android.app.Application
+import androidx.room.RoomDatabase
+import bill.piggy.data.common.LocalDatabase
 import bill.piggy.data.dataModules
 import bill.piggy.features.featureModules
 import org.koin.android.ext.koin.androidContext
@@ -32,9 +34,14 @@ class PiggyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        startRoom()
         startKoin {
             androidContext(this@PiggyApplication)
             modules(dataModules, featureModules)
         }
+    }
+
+    private fun startRoom() {
+        LocalDatabase.create(this)
     }
 }

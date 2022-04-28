@@ -30,7 +30,7 @@ import org.koin.dsl.module
 // When this gets bigger, it should become multiple smaller modules
 val dataModules = module {
 
-    single { LocalDatabase.create(get()) }
+    single { LocalDatabase.instance }
     single { get<LocalDatabase>().budgetDao() }
 
     single { BudgetRepository(get()) }
