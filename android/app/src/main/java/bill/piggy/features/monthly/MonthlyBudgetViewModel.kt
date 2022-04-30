@@ -26,14 +26,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
 import bill.piggy.R
+import bill.piggy.common.collectInBackground
 import bill.piggy.common.ui.BindableViewModel
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 data class CategoryViewModel(val name: String) : BindableViewModel {
     override val layoutId get() = R.layout.monthly_budget_item_category
@@ -45,32 +44,58 @@ data class BudgetViewModel(val budget: Budget) : BindableViewModel {
     override val viewType get() = 1
 }
 
-sealed class MonthlyBudgetUiState {
+sealed class MonthlyBudgetUiState(
+    val budgets: List<BindableViewModel>
+) {
 
     val header get() = "April's Budget"
 
-    object Idle : MonthlyBudgetUiState()
-    class Navigating(val direction: NavDirections) : MonthlyBudgetUiState()
+    abstract fun update(budgets: List<BindableViewModel>): MonthlyBudgetUiState
+
+    object Loading : MonthlyBudgetUiState(emptyList()) {
+        override fun update(budgets: List<BindableViewModel>) = Idle(budgets)
+    }
+
+    class Idle(budgets: List<BindableViewModel>) : MonthlyBudgetUiState(budgets) {
+        override fun update(budgets: List<BindableViewModel>) = Idle(budgets)
+    }
+
+    class Navigating(budgets: List<BindableViewModel>, val direction: NavDirections) : MonthlyBudgetUiState(budgets) {
+        override fun update(budgets: List<BindableViewModel>) = Navigating(budgets, direction)
+    }
 }
 
 class MonthlyBudgetViewModel(
     budgetRepository: BudgetRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<MonthlyBudgetUiState>(MonthlyBudgetUiState.Idle)
+    private val _uiState = MutableStateFlow<MonthlyBudgetUiState>(MonthlyBudgetUiState.Loading)
     val uiState: StateFlow<MonthlyBudgetUiState> get() = _uiState
-    val budgets = budgetRepository.getAll().map(this::budgetsToViewModels)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    init {
+        budgetRepository.getAll()
+            .map(this::budgetsToViewModels)
+            .collectInBackground(viewModelScope) {
+                val value = _uiState.value
+                check(value is MonthlyBudgetUiState.Loading || value is MonthlyBudgetUiState.Idle)
+                _uiState.value = value.update(it)
+            }
+    }
 
     // Events
     fun onAddTransaction() {
-        assert(uiState.value is MonthlyBudgetUiState.Idle)
-        _uiState.value = MonthlyBudgetUiState.Navigating(MonthlyBudgetFragmentDirections.actionAddTransaction())
+        val state = uiState.value
+        check(state is MonthlyBudgetUiState.Idle)
+
+        val budgets = state.budgets
+        val direction = MonthlyBudgetFragmentDirections.actionAddTransaction()
+        _uiState.value = MonthlyBudgetUiState.Navigating(budgets, direction)
     }
 
     fun onFinishedNavigation() {
-        assert(uiState.value is MonthlyBudgetUiState.Navigating)
-        _uiState.value = MonthlyBudgetUiState.Idle
+        val state = uiState.value
+        check(state is MonthlyBudgetUiState.Navigating)
+        _uiState.value = MonthlyBudgetUiState.Idle(state.budgets)
     }
 
     // Processing functions

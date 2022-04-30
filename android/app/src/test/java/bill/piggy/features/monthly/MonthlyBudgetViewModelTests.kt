@@ -50,7 +50,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.first()
+        val budgetViewModels = viewModel.uiState.first().budgets
         assertEquals(2, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("Category name"), budgetViewModels[0])
@@ -67,7 +67,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.first()
+        val budgetViewModels = viewModel.uiState.first().budgets
         assertEquals(3, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("Category name"), budgetViewModels[0])
@@ -85,7 +85,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.first()
+        val budgetViewModels = viewModel.uiState.first().budgets
         assertEquals(4, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("First category"), budgetViewModels[0])
@@ -107,7 +107,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.first()
+        val budgetViewModels = viewModel.uiState.first().budgets
         assertEquals(6, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("First category"), budgetViewModels[0])

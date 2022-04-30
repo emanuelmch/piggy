@@ -22,14 +22,26 @@
 
 package bill.piggy.common
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+
+inline fun <T> Flow<T>.collectInBackground(scope: CoroutineScope, crossinline action: suspend (value: T) -> Unit) {
+    scope.launch { this@collectInBackground.collect(action) }
+}
+
+inline fun <T> Flow<T>.collectInBackground(owner: LifecycleOwner, crossinline action: suspend (value: T) -> Unit) {
+    owner.lifecycleScope.launch { this@collectInBackground.flowWithLifecycle(owner.lifecycle).collect(action) }
+}
 
 inline fun <T> ViewModel.eagerShare(crossinline flowFactory: () -> Flow<T>): Flow<T> {
     val shared = MutableSharedFlow<T>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)

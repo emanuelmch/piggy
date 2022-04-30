@@ -22,24 +22,22 @@
 
 package bill.piggy.features.monthly
 
-import kotlinx.coroutines.flow.collect
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import bill.piggy.common.collectInBackground
 import bill.piggy.databinding.MonthlyBudgetFragmentBinding
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MonthlyBudgetFragment : Fragment() {
 
     private val viewModel by viewModel<MonthlyBudgetViewModel>()
+
+    // TODO: Find a way to remove this awful workaround
+    private var hasNavigatedAway = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,26 +48,22 @@ class MonthlyBudgetFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-        setupListeners()
+        setupNavigation()
 
         return binding.root
     }
 
-    private fun setupListeners() {
-        lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .collect { uiState ->
-                    when (uiState) {
-                        is MonthlyBudgetUiState.Idle -> {
-                            Log.d("Bill", "We're idle")
-                        }
-                        is MonthlyBudgetUiState.Navigating -> {
-                            findNavController().navigate(uiState.direction)
-                            viewModel.onFinishedNavigation()
-                        }
-                    }
-                }
+    private fun setupNavigation() {
+        if (hasNavigatedAway) {
+            hasNavigatedAway = false
+            viewModel.onFinishedNavigation()
+        }
+
+        viewModel.uiState.collectInBackground(viewLifecycleOwner) { uiState ->
+            if (uiState is MonthlyBudgetUiState.Navigating) {
+                hasNavigatedAway = true
+                findNavController().navigate(uiState.direction)
+            }
         }
     }
 }

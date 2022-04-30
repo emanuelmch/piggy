@@ -28,7 +28,7 @@ object CurrencyConverter {
 
     @JvmStatic
     fun centsToMoney(cents: Long): String {
-        assert(cents in 0..1_000_000_000_000_00L)
+        require(cents in 0..1_000_000_000_000_00L)
 
         val pattern = if (cents % 100L == 0L) "$ #,##0" else "$ #,##0.00"
         val formatter = DecimalFormat(pattern)

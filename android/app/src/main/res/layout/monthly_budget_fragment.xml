@@ -55,7 +55,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:itemViewModels="@{ viewModel.budgets }"
+                app:itemViewModels="@{ viewModel.uiState.budgets }"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.core.widget.NestedScrollView>
 
