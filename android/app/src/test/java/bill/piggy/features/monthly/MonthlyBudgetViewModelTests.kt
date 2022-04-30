@@ -22,31 +22,22 @@
 
 package bill.piggy.features.monthly
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
-import bill.piggy.test.AsyncTest
 import bill.piggy.test.CoroutineTest
 import bill.piggy.test.MockkTest
-import bill.piggy.test.TestCoroutineRule
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
+class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
 
     private val budgetRepository = mockk<BudgetRepository>()
 
@@ -55,13 +46,11 @@ class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
     @Test
     fun `test budgets can emit a single budget`() = runTest {
         val budget = Budget(1, "Budget name", "Category name", 123)
-        every { budgetRepository.getAll() } returns MutableLiveData(
-            listOf(budget)
-        )
+        every { budgetRepository.getAll() } returns flowOf(listOf(budget))
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.awaitValue()
+        val budgetViewModels = viewModel.budgets.first()
         assertEquals(2, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("Category name"), budgetViewModels[0])
@@ -69,16 +58,16 @@ class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
     }
 
     @Test
-    fun `test budgets can emit multiple budgets of the same category`() {
+    fun `test budgets can emit multiple budgets of the same category`() = runBlocking {
         val budgets = listOf(
             Budget(1, "First budget", "Category name", 123),
             Budget(2, "Second budget", "Category name", 321)
         )
-        every { budgetRepository.getAll() } returns MutableLiveData(budgets)
+        every { budgetRepository.getAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.awaitValue()
+        val budgetViewModels = viewModel.budgets.first()
         assertEquals(3, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("Category name"), budgetViewModels[0])
@@ -87,16 +76,16 @@ class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
     }
 
     @Test
-    fun `test budgets can emit multiple categories with a single budget each`() {
+    fun `test budgets can emit multiple categories with a single budget each`() = runBlocking {
         val budgets = listOf(
             Budget(1, "First budget", "First category", 123),
             Budget(2, "Second budget", "Second category", 321)
         )
-        every { budgetRepository.getAll() } returns MutableLiveData(budgets)
+        every { budgetRepository.getAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.awaitValue()
+        val budgetViewModels = viewModel.budgets.first()
         assertEquals(4, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("First category"), budgetViewModels[0])
@@ -107,18 +96,18 @@ class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
 
 
     @Test
-    fun `test budgets can emit multiple categories with multiple budget each`() {
+    fun `test budgets can emit multiple categories with multiple budget each`() = runBlocking {
         val budgets = listOf(
             Budget(1, "First budget", "First category", 123),
             Budget(2, "Second budget", "First category", 234),
             Budget(3, "Third budget", "Second category", 345),
             Budget(4, "Fourth budget", "Second category", 456)
         )
-        every { budgetRepository.getAll() } returns MutableLiveData(budgets)
+        every { budgetRepository.getAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
-        val budgetViewModels = viewModel.budgets.awaitValue()
+        val budgetViewModels = viewModel.budgets.first()
         assertEquals(6, budgetViewModels.size)
 
         assertEquals(CategoryViewModel("First category"), budgetViewModels[0])
@@ -127,26 +116,5 @@ class MonthlyBudgetViewModelTests: AsyncTest, MockkTest {
         assertEquals(CategoryViewModel("Second category"), budgetViewModels[3])
         assertEquals(BudgetViewModel(budgets[2]), budgetViewModels[4])
         assertEquals(BudgetViewModel(budgets[3]), budgetViewModels[5])
-    }
-
-    private fun <T> LiveData<T>.awaitValue(): T {
-        var data: T? = null
-        val latch = CountDownLatch(1)
-        val observer = Observer<T> { value ->
-            data = value
-            latch.countDown()
-        }
-
-        try {
-            this.observeForever(observer)
-
-            if (!latch.await(1, TimeUnit.SECONDS)) {
-                throw TimeoutException()
-            }
-        } finally {
-            this.removeObserver(observer)
-        }
-
-        return data!!
     }
 }

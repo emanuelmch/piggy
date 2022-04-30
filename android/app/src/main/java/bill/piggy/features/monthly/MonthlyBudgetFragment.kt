@@ -22,14 +22,19 @@
 
 package bill.piggy.features.monthly
 
+import kotlinx.coroutines.flow.collect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import bill.piggy.databinding.MonthlyBudgetFragmentBinding
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MonthlyBudgetFragment : Fragment() {
@@ -51,16 +56,20 @@ class MonthlyBudgetFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-            when (uiState) {
-                is MonthlyBudgetUiState.Idle -> {
-                    Log.d("Bill", "We're idle")
+        lifecycleScope.launch {
+            viewModel.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collect { uiState ->
+                    when (uiState) {
+                        is MonthlyBudgetUiState.Idle -> {
+                            Log.d("Bill", "We're idle")
+                        }
+                        is MonthlyBudgetUiState.Navigating -> {
+                            findNavController().navigate(uiState.direction)
+                            viewModel.onFinishedNavigation()
+                        }
+                    }
                 }
-                is MonthlyBudgetUiState.Navigating -> {
-                    findNavController().navigate(uiState.direction)
-                    viewModel.onFinishedNavigation()
-                }
-            }
         }
     }
 }

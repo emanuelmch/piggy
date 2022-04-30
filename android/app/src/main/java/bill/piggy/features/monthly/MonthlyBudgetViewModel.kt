@@ -22,15 +22,18 @@
 
 package bill.piggy.features.monthly
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
 import bill.piggy.R
 import bill.piggy.common.ui.BindableViewModel
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class CategoryViewModel(val name: String) : BindableViewModel {
     override val layoutId get() = R.layout.monthly_budget_item_category
@@ -54,9 +57,10 @@ class MonthlyBudgetViewModel(
     budgetRepository: BudgetRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<MonthlyBudgetUiState>(MonthlyBudgetUiState.Idle)
-    val uiState = _uiState.distinctUntilChanged()
+    private val _uiState = MutableStateFlow<MonthlyBudgetUiState>(MonthlyBudgetUiState.Idle)
+    val uiState: StateFlow<MonthlyBudgetUiState> get() = _uiState
     val budgets = budgetRepository.getAll().map(this::budgetsToViewModels)
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     // Events
     fun onAddTransaction() {

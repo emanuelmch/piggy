@@ -22,9 +22,9 @@
 
 package bill.piggy.data.payees
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import bill.piggy.data.budgets.Budget
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 data class Payee(
     val uid: Int,
@@ -47,7 +47,7 @@ class PayeeRepository(
     fun getAll() = localDataSource.watchAll().map { it.map(RoomPayee::asPayee) }
 
     // FIXME: use localDataSource directly instead
-    fun getByName(name: String): LiveData<Payee?> {
+    fun getByName(name: String): Flow<Payee?> {
         return getAll().map { all ->
             all.find { it.name == name }
         }

@@ -22,18 +22,17 @@
 
 package bill.piggy.features.add_transaction
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import bill.piggy.common.CurrencyConverter
-import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
-import bill.piggy.data.payees.Payee
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -49,14 +48,14 @@ class AddTransactionViewModel(
     payeeRepository: PayeeRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData(AddTransactionUiState())
-    val uiState: LiveData<AddTransactionUiState> = _uiState.distinctUntilChanged()
-    val payees: LiveData<List<Payee>> = payeeRepository.getAll()
-    val budgets: LiveData<List<Budget>> = budgetRepository.getAll()
+    private val _uiState = MutableStateFlow(AddTransactionUiState())
+    val uiState: StateFlow<AddTransactionUiState> get() = _uiState
+    val payees = payeeRepository.getAll().stateIn(viewModelScope, Eagerly, emptyList())
+    val budgets = budgetRepository.getAll().stateIn(viewModelScope, Eagerly, emptyList())
 
     // Events
     fun onAmountChanged(newValue: String) {
-        val state = _uiState.value!!
+        val state = uiState.value
 
         val newAmount = CurrencyConverter.moneyToCents(newValue)
         val newTransaction = state.transaction.copy(amount = newAmount)
@@ -66,9 +65,9 @@ class AddTransactionViewModel(
 
     fun onPayeeChanged(payeeName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val state = _uiState.value!!
+            val state = uiState.value
 
-            val newPayee = payees.value!!.find { it.name == payeeName }!!
+            val newPayee = payees.value.find { it.name == payeeName }!!
             val newTransaction =
                 if (newPayee.preferredBudget != null) {
                     state.transaction.copy(payee = newPayee, budget = newPayee.preferredBudget)
@@ -76,18 +75,18 @@ class AddTransactionViewModel(
                     state.transaction.copy(payee = newPayee)
                 }
 
-            _uiState.postValue(state.copy(transaction = newTransaction))
+            _uiState.value = state.copy(transaction = newTransaction)
         }
     }
 
     fun onBudgetChanged(budgetName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val state = _uiState.value!!
+            val state = uiState.value
 
-            val newBudget = budgets.value!!.find { it.name == budgetName }!!
+            val newBudget = budgets.value.find { it.name == budgetName }!!
             val newTransaction = state.transaction.copy(budget = newBudget)
 
-            _uiState.postValue(state.copy(transaction = newTransaction))
+            _uiState.value = state.copy(transaction = newTransaction)
         }
     }
 }

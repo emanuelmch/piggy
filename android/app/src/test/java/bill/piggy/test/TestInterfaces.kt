@@ -28,20 +28,11 @@ import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Rule
 
-interface AsyncTest : CoroutineTest, TaskExecutorTest
-
 interface CoroutineTest {
 
     @get:Rule
     val coroutineRule: TestCoroutineRule
         get() = TestCoroutineRule()
-}
-
-interface TaskExecutorTest {
-
-    @get:Rule
-    val instantExecutorRule: InstantTaskExecutorRule
-        get() = InstantTaskExecutorRule()
 }
 
 interface MockkTest {

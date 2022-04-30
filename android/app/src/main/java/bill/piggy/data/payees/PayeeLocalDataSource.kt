@@ -22,7 +22,6 @@
 
 package bill.piggy.data.payees
 
-import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Embedded
@@ -34,8 +33,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
-import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.RoomBudget
+import kotlinx.coroutines.flow.Flow
 
 @Entity(
     tableName = "payee",
@@ -67,7 +66,7 @@ interface PayeeLocalDataSource {
 
     @Transaction
     @Query("SELECT * FROM payee")
-    fun watchAll(): LiveData<List<RoomPayee>>
+    fun watchAll(): Flow<List<RoomPayee>>
 
     @Insert
     fun insert(vararg payees: PartialRoomPayee)

@@ -22,8 +22,8 @@
 
 package bill.piggy.data.budgets
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 data class Budget(
     val uid: Long,
@@ -47,7 +47,7 @@ class BudgetRepository(
     fun getAll() = localDataSource.watchAll().map { it.map(RoomBudget::asBudget) }
 
     // FIXME: use localDataSource directly instead
-    fun getByName(name: String): LiveData<Budget?> {
+    fun getByName(name: String): Flow<Budget?> {
         return getAll().map { all ->
             all.find { it.name == name }
         }

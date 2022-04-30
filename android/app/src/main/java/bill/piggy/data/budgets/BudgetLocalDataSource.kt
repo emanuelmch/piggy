@@ -22,12 +22,12 @@
 
 package bill.piggy.data.budgets
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 
 @Entity(tableName = "budget")
@@ -46,7 +46,7 @@ data class RoomBudget(
 interface BudgetLocalDataSource {
 
     @Query("SELECT * FROM budget")
-    fun watchAll(): LiveData<List<RoomBudget>>
+    fun watchAll(): Flow<List<RoomBudget>>
 
     @Query("SELECT * FROM budget WHERE name = :name LIMIT 1")
     fun getByName(name: String) : RoomBudget
