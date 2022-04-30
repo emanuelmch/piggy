@@ -29,18 +29,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
-import bill.piggy.data.budgets.Budget
-import bill.piggy.data.payees.Payee
 import bill.piggy.databinding.AddTransactionFragmentBinding
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -66,26 +60,21 @@ class AddTransactionFragment : Fragment() {
     private fun setupFields(binding: AddTransactionFragmentBinding, viewModel: AddTransactionViewModel) {
         binding.amount.editText?.addFilters(CurrencyTextInputFilter)
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.payees
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .map { it.map(Payee::name) }
-                .collect { payeeNames ->
-                    val adapter =
-                        ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, payeeNames)
-                    (binding.payee.editText as AutoCompleteTextView).threshold = Int.MAX_VALUE
-                    (binding.payee.editText as AutoCompleteTextView).setAdapter(adapter)
-                }
+            val payeeNames = viewModel.payees.first().map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, payeeNames)
+            (binding.payee.editText as AutoCompleteTextView).apply {
+                threshold = Int.MAX_VALUE
+                setAdapter(adapter)
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.budgets
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .map { it.map(Budget::name) }.collect { budgetNames ->
-                    val adapter =
-                        ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, budgetNames)
-                    (binding.budget.editText as AutoCompleteTextView).threshold = Int.MAX_VALUE
-                    (binding.budget.editText as AutoCompleteTextView).setAdapter(adapter)
-                }
+            val budgetNames = viewModel.budgets.first().map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, budgetNames)
+            (binding.budget.editText as AutoCompleteTextView).apply {
+                threshold = Int.MAX_VALUE
+                setAdapter(adapter)
+            }
         }
     }
 

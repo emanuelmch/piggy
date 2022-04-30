@@ -25,14 +25,13 @@ package bill.piggy.features.add_transaction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import bill.piggy.common.CurrencyConverter
+import bill.piggy.common.eagerShare
 import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -50,8 +49,8 @@ class AddTransactionViewModel(
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState: StateFlow<AddTransactionUiState> get() = _uiState
-    val payees = payeeRepository.getAll().stateIn(viewModelScope, Eagerly, emptyList())
-    val budgets = budgetRepository.getAll().stateIn(viewModelScope, Eagerly, emptyList())
+    val payees = eagerShare { payeeRepository.getAll() }
+    val budgets = eagerShare { budgetRepository.getAll() }
 
     // Events
     fun onAmountChanged(newValue: String) {
@@ -64,10 +63,10 @@ class AddTransactionViewModel(
     }
 
     fun onPayeeChanged(payeeName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val state = uiState.value
 
-            val newPayee = payees.value.find { it.name == payeeName }!!
+            val newPayee = payees.first().find { it.name == payeeName }!!
             val newTransaction =
                 if (newPayee.preferredBudget != null) {
                     state.transaction.copy(payee = newPayee, budget = newPayee.preferredBudget)
@@ -80,10 +79,10 @@ class AddTransactionViewModel(
     }
 
     fun onBudgetChanged(budgetName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val state = uiState.value
 
-            val newBudget = budgets.value.find { it.name == budgetName }!!
+            val newBudget = budgets.first().find { it.name == budgetName }!!
             val newTransaction = state.transaction.copy(budget = newBudget)
 
             _uiState.value = state.copy(transaction = newTransaction)
