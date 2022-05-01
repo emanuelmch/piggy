@@ -49,8 +49,8 @@ class AddTransactionViewModel(
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState: StateFlow<AddTransactionUiState> get() = _uiState
-    val payees = eagerShare { payeeRepository.getAll() }
-    val budgets = eagerShare { budgetRepository.getAll() }
+    val payees = eagerShare { payeeRepository.watchAll() }
+    val budgets = eagerShare { budgetRepository.watchAll() }
 
     // Events
     fun onAmountChanged(newValue: String) {

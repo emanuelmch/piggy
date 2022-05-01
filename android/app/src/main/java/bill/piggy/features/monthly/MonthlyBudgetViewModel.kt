@@ -73,7 +73,7 @@ class MonthlyBudgetViewModel(
     val uiState: StateFlow<MonthlyBudgetUiState> get() = _uiState
 
     init {
-        budgetRepository.getAll()
+        budgetRepository.watchAll()
             .map(this::budgetsToViewModels)
             .collectInBackground(viewModelScope) {
                 val value = _uiState.value

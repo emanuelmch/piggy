@@ -44,12 +44,5 @@ class BudgetRepository(
     private val localDataSource: BudgetLocalDataSource
 ) {
 
-    fun getAll() = localDataSource.watchAll().map { it.map(RoomBudget::asBudget) }
-
-    // FIXME: use localDataSource directly instead
-    fun getByName(name: String): Flow<Budget?> {
-        return getAll().map { all ->
-            all.find { it.name == name }
-        }
-    }
+    fun watchAll() = localDataSource.watchAll().map { it.map(RoomBudget::asBudget) }
 }

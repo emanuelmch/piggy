@@ -23,7 +23,6 @@
 package bill.piggy.data.payees
 
 import bill.piggy.data.budgets.Budget
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 data class Payee(
@@ -44,12 +43,5 @@ class PayeeRepository(
     private val localDataSource: PayeeLocalDataSource
 ) {
 
-    fun getAll() = localDataSource.watchAll().map { it.map(RoomPayee::asPayee) }
-
-    // FIXME: use localDataSource directly instead
-    fun getByName(name: String): Flow<Payee?> {
-        return getAll().map { all ->
-            all.find { it.name == name }
-        }
-    }
+    fun watchAll() = localDataSource.watchAll().map { it.map(RoomPayee::asPayee) }
 }

@@ -46,7 +46,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
     @Test
     fun `test budgets can emit a single budget`() = runTest {
         val budget = Budget(1, "Budget name", "Category name", 123)
-        every { budgetRepository.getAll() } returns flowOf(listOf(budget))
+        every { budgetRepository.watchAll() } returns flowOf(listOf(budget))
 
         val viewModel = initViewModel()
 
@@ -63,7 +63,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
             Budget(1, "First budget", "Category name", 123),
             Budget(2, "Second budget", "Category name", 321)
         )
-        every { budgetRepository.getAll() } returns flowOf(budgets)
+        every { budgetRepository.watchAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
@@ -81,7 +81,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
             Budget(1, "First budget", "First category", 123),
             Budget(2, "Second budget", "Second category", 321)
         )
-        every { budgetRepository.getAll() } returns flowOf(budgets)
+        every { budgetRepository.watchAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
@@ -103,7 +103,7 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
             Budget(3, "Third budget", "Second category", 345),
             Budget(4, "Fourth budget", "Second category", 456)
         )
-        every { budgetRepository.getAll() } returns flowOf(budgets)
+        every { budgetRepository.watchAll() } returns flowOf(budgets)
 
         val viewModel = initViewModel()
 
