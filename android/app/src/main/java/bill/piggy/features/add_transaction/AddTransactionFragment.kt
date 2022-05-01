@@ -34,9 +34,9 @@ import androidx.navigation.findNavController
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
 import bill.piggy.databinding.AddTransactionFragmentBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AddTransactionFragment : Fragment() {
 

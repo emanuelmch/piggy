@@ -22,9 +22,9 @@
 
 package bill.piggy.features.monthly
 
+import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavDirections
 import bill.piggy.R
 import bill.piggy.common.collectInBackground
 import bill.piggy.common.ui.BindableViewModel
@@ -60,7 +60,7 @@ sealed class MonthlyBudgetUiState(
         override fun update(budgets: List<BindableViewModel>) = Idle(budgets)
     }
 
-    class Navigating(budgets: List<BindableViewModel>, val direction: NavDirections) : MonthlyBudgetUiState(budgets) {
+    class Navigating(budgets: List<BindableViewModel>, @IdRes val direction: Int) : MonthlyBudgetUiState(budgets) {
         override fun update(budgets: List<BindableViewModel>) = Navigating(budgets, direction)
     }
 }
@@ -87,9 +87,7 @@ class MonthlyBudgetViewModel(
         val state = uiState.value
         check(state is MonthlyBudgetUiState.Idle)
 
-        val budgets = state.budgets
-        val direction = MonthlyBudgetFragmentDirections.actionAddTransaction()
-        _uiState.value = MonthlyBudgetUiState.Navigating(budgets, direction)
+        _uiState.value = MonthlyBudgetUiState.Navigating(state.budgets, R.id.action_add_transaction)
     }
 
     fun onFinishedNavigation() {
