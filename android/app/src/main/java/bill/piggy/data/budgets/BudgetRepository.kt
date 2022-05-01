@@ -22,7 +22,6 @@
 
 package bill.piggy.data.budgets
 
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 data class Budget(

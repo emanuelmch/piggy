@@ -22,7 +22,6 @@
 
 package bill.piggy.data.transactions
 
-
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.payees.Payee
 
@@ -36,5 +35,4 @@ data class Transaction(val amount: Long, val payee: Payee, val budget: Budget) {
     }
 }
 
-class TransactionRepository {
-}
+class TransactionRepository

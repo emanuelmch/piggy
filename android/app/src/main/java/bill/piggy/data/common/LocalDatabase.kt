@@ -35,7 +35,6 @@ import bill.piggy.data.budgets.BudgetLocalDataSource
 import bill.piggy.data.budgets.RoomBudget
 import bill.piggy.data.payees.PartialRoomPayee
 import bill.piggy.data.payees.PayeeLocalDataSource
-import bill.piggy.data.payees.RoomPayee
 
 // Yeah, yeah, I know I should be using a CoroutineWorker instead, but this is
 // just for debugging NOW and I don't wanna add a dependency just for that
@@ -72,8 +71,8 @@ private class DebugDatabasePopulator : AsyncTask<Unit, Unit, Unit>() {
             RoomBudget(0, "Investment Funds", rainyDayFunds, 78912),
         )
 
-        val houseBudget:RoomBudget = LocalDatabase.instance.budgetDataSource().getByName("House")
-        val groceriesBudget:RoomBudget = LocalDatabase.instance.budgetDataSource().getByName("Food & Groceries")
+        val houseBudget = LocalDatabase.instance.budgetDataSource().getByName("House")
+        val groceriesBudget = LocalDatabase.instance.budgetDataSource().getByName("Food & Groceries")
 
         LocalDatabase.instance.payeeDataSource().insert(
             PartialRoomPayee(0, "Rent", houseBudget.uid),

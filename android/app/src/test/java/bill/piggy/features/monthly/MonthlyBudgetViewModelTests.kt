@@ -28,13 +28,13 @@ import bill.piggy.test.CoroutineTest
 import bill.piggy.test.MockkTest
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
@@ -93,7 +93,6 @@ class MonthlyBudgetViewModelTests : CoroutineTest, MockkTest {
         assertEquals(CategoryViewModel("Second category"), budgetViewModels[2])
         assertEquals(BudgetViewModel(budgets[1]), budgetViewModels[3])
     }
-
 
     @Test
     fun `test budgets can emit multiple categories with multiple budget each`() = runBlocking {

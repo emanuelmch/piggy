@@ -32,7 +32,8 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TestCoroutineRule constructor(private val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()) : TestWatcher() {
+class TestCoroutineRule constructor(private val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()) :
+    TestWatcher() {
 
     override fun starting(description: Description?) {
         super.starting(description)

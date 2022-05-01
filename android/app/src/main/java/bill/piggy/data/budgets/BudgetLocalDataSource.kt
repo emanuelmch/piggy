@@ -29,7 +29,6 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-
 @Entity(tableName = "budget")
 data class RoomBudget(
     @PrimaryKey(autoGenerate = true) val uid: Long,
@@ -49,7 +48,7 @@ interface BudgetLocalDataSource {
     fun watchAll(): Flow<List<RoomBudget>>
 
     @Query("SELECT * FROM budget WHERE name = :name LIMIT 1")
-    fun getByName(name: String) : RoomBudget
+    fun getByName(name: String): RoomBudget
 
     @Insert
     fun insert(vararg budgets: RoomBudget)

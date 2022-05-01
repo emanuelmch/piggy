@@ -23,7 +23,6 @@
 package bill.piggy.test
 
 import androidx.annotation.CallSuper
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Rule

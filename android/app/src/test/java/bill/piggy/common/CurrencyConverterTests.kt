@@ -24,54 +24,51 @@ package bill.piggy.common
 
 import bill.piggy.common.CurrencyConverter.centsToMoney
 import bill.piggy.common.CurrencyConverter.moneyToCents
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
+import kotlin.test.assertEquals
 import org.junit.Test
 
 class CurrencyConverterTests {
 
     @Test
     fun `test moneyToCents without a period`() {
-        assertThat(moneyToCents(""), `is`(equalTo(0)))
-        assertThat(moneyToCents("1"), `is`(equalTo(100)))
-        assertThat(moneyToCents("123456789"), `is`(equalTo(12345678900)))
+        assertEquals(0, moneyToCents(""))
+        assertEquals(100, moneyToCents("1"))
+        assertEquals(12345678900, moneyToCents("123456789"))
     }
 
     @Test
     fun `test moneyToCents with a period`() {
-        assertThat(moneyToCents(".1"), `is`(equalTo(10)))
-        assertThat(moneyToCents("0.1"), `is`(equalTo(10)))
-        assertThat(moneyToCents("0.01"), `is`(equalTo(1)))
-        assertThat(moneyToCents("10.01"), `is`(equalTo(1001)))
+        assertEquals(10, moneyToCents(".1"))
+        assertEquals(10, moneyToCents("0.1"))
+        assertEquals(1, moneyToCents("0.01"))
+        assertEquals(1001, moneyToCents("10.01"))
     }
 
     @Test
     fun `test centsToMoney with cents`() {
-        assertThat(centsToMoney(1), `is`(equalTo("$ 0.01")))
-        assertThat(centsToMoney(9), `is`(equalTo("$ 0.09")))
-        assertThat(centsToMoney(10), `is`(equalTo("$ 0.10")))
-        assertThat(centsToMoney(99), `is`(equalTo("$ 0.99")))
-        assertThat(centsToMoney(101), `is`(equalTo("$ 1.01")))
-        assertThat(centsToMoney(199), `is`(equalTo("$ 1.99")))
-        assertThat(centsToMoney(999), `is`(equalTo("$ 9.99")))
-        assertThat(centsToMoney(99999), `is`(equalTo("$ 999.99")))
-        assertThat(centsToMoney(100001), `is`(equalTo("$ 1,000.01")))
-        assertThat(centsToMoney(99999999), `is`(equalTo("$ 999,999.99")))
-        assertThat(centsToMoney(999_999_999_999_01L), `is`(equalTo("$ 999,999,999,999.01")))
-        assertThat(centsToMoney(999_999_999_999_99L), `is`(equalTo("$ 999,999,999,999.99")))
+        assertEquals("$ 0.01", centsToMoney(1))
+        assertEquals("$ 0.09", centsToMoney(9))
+        assertEquals("$ 0.10", centsToMoney(10))
+        assertEquals("$ 0.99", centsToMoney(99))
+        assertEquals("$ 1.01", centsToMoney(101))
+        assertEquals("$ 1.99", centsToMoney(199))
+        assertEquals("$ 9.99", centsToMoney(999))
+        assertEquals("$ 999.99", centsToMoney(99999))
+        assertEquals("$ 1,000.01", centsToMoney(100001))
+        assertEquals("$ 999,999.99", centsToMoney(99999999))
+        assertEquals("$ 999,999,999,999.01", centsToMoney(999_999_999_999_01L))
+        assertEquals("$ 999,999,999,999.99", centsToMoney(999_999_999_999_99L))
     }
 
     @Test
     fun `test centsToMoney without cents`() {
-        Double.MAX_VALUE
-        assertThat(centsToMoney(0), `is`(equalTo("$ 0")))
-        assertThat(centsToMoney(1_00), `is`(equalTo("$ 1")))
-        assertThat(centsToMoney(999_00), `is`(equalTo("$ 999")))
-        assertThat(centsToMoney(1_000_00), `is`(equalTo("$ 1,000")))
-        assertThat(centsToMoney(999_999_00), `is`(equalTo("$ 999,999")))
-        assertThat(centsToMoney(999_999_00), `is`(equalTo("$ 999,999")))
-        assertThat(centsToMoney(999_999_999_999_00L), `is`(equalTo("$ 999,999,999,999")))
-        assertThat(centsToMoney(1_000_000_000_000_00L), `is`(equalTo("$ 1,000,000,000,000")))
+        assertEquals("$ 0", centsToMoney(0))
+        assertEquals("$ 1", centsToMoney(1_00))
+        assertEquals("$ 999", centsToMoney(999_00))
+        assertEquals("$ 1,000", centsToMoney(1_000_00))
+        assertEquals("$ 999,999", centsToMoney(999_999_00))
+        assertEquals("$ 999,999", centsToMoney(999_999_00))
+        assertEquals("$ 999,999,999,999", centsToMoney(999_999_999_999_00L))
+        assertEquals("$ 1,000,000,000,000", centsToMoney(1_000_000_000_000_00L))
     }
 }

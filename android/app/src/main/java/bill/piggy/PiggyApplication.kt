@@ -23,7 +23,6 @@
 package bill.piggy
 
 import android.app.Application
-import androidx.room.RoomDatabase
 import bill.piggy.data.common.LocalDatabase
 import bill.piggy.data.dataModules
 import bill.piggy.features.featureModules

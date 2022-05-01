@@ -28,12 +28,16 @@ import android.widget.EditText
 
 object CurrencyTextInputFilter : InputFilter {
     override fun filter(
-        source: CharSequence, start: Int, end: Int,
-        dest: Spanned, dstart: Int, dend: Int
+        source: CharSequence,
+        start: Int,
+        end: Int,
+        dest: Spanned,
+        dstart: Int,
+        dend: Int
     ): CharSequence? {
         val result = dest.subSequence(0, dstart).toString() +
-                source.toString() +
-                dest.subSequence(dend, dest.length)
+            source.toString() +
+            dest.subSequence(dend, dest.length)
 
         val periodIndex = result.indexOf('.')
         // If there are more than 2 characters after the '.', reject the change
