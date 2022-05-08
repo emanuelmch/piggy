@@ -48,7 +48,8 @@ sealed class MonthlyBudgetUiState(
     val budgets: List<BindableViewModel>
 ) {
 
-    val header get() = "April's Budget"
+    // FIXME: Remove this Transition Animation workaround
+    val header get() = "May's Budget      "
 
     abstract fun update(budgets: List<BindableViewModel>): MonthlyBudgetUiState
 

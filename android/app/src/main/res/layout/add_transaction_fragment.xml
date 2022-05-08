@@ -21,7 +21,6 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -39,7 +38,8 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true">
+            android:fitsSystemWindows="true"
+            android:transitionName="transition_appbar">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -53,6 +53,7 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
             android:clipToPadding="false"
             android:padding="@dimen/default_spacing"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -117,6 +118,7 @@
             android:layout_margin="16dp"
             android:contentDescription="@string/add_content_description"
             android:enabled="@{ viewModel.uiState.canSave }"
+            android:transitionName="transition_fab"
             app:srcCompat="@drawable/ic_check_24" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

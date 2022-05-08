@@ -27,6 +27,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import bill.piggy.common.collectInBackground
 import bill.piggy.databinding.MonthlyBudgetFragmentBinding
@@ -35,9 +36,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MonthlyBudgetFragment : Fragment() {
 
     private val viewModel by viewModel<MonthlyBudgetViewModel>()
-
-    // TODO: Find a way to remove this awful workaround
-    private var hasNavigatedAway = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,21 +46,24 @@ class MonthlyBudgetFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-        setupNavigation()
+        setupNavigation(binding)
 
         return binding.root
     }
 
-    private fun setupNavigation() {
-        if (hasNavigatedAway) {
-            hasNavigatedAway = false
-            viewModel.onFinishedNavigation()
-        }
-
+    private fun setupNavigation(binding: MonthlyBudgetFragmentBinding) {
         viewModel.uiState.collectInBackground(viewLifecycleOwner) { uiState ->
             if (uiState is MonthlyBudgetUiState.Navigating) {
-                hasNavigatedAway = true
-                findNavController().navigate(uiState.direction)
+                findNavController().navigate(
+                    uiState.direction,
+                    null,
+                    null,
+                    FragmentNavigatorExtras(
+                        binding.appbar to "transition_appbar",
+                        binding.addButton to "transition_fab"
+                    )
+                )
+                viewModel.onFinishedNavigation()
             }
         }
     }

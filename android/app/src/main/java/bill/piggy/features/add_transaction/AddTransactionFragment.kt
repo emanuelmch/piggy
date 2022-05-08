@@ -33,6 +33,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
+import bill.piggy.common.ui.transitions.ExpandAndShrinkTransition
+import bill.piggy.common.ui.transitions.IconTransition
+import bill.piggy.common.ui.transitions.TextTransition
+import bill.piggy.common.ui.transitions.transitions
 import bill.piggy.databinding.AddTransactionFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.coroutines.flow.first
@@ -41,6 +45,23 @@ import kotlinx.coroutines.launch
 class AddTransactionFragment : Fragment() {
 
     private val viewModel by viewModel<AddTransactionViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedElementEnterTransition = transitions(
+            ExpandAndShrinkTransition(target = "transition_fab"),
+            IconTransition(target = "transition_fab"),
+            IconTransition(target = "transition_appbar"),
+            TextTransition(target = "transition_appbar")
+        )
+        sharedElementReturnTransition = transitions(
+            ExpandAndShrinkTransition(target = "transition_fab"),
+            IconTransition(target = "transition_fab", reverse = true),
+            IconTransition(target = "transition_appbar", reverse = true),
+            TextTransition(target = "transition_appbar", reverse = true)
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
