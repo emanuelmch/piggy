@@ -21,42 +21,24 @@ package bill.piggy.common.ui.transitions
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.view.ViewGroup
-import androidx.transition.TransitionValues
-
-private const val ScaleProperty = "bill.piggy.common.ui.transitions:ExpandAndShrinkTransition:scale"
+import android.view.View
 
 class ExpandAndShrinkTransition(
     target: String? = null,
     duration: Long? = null
-) : BaseTransition(target, duration) {
+) : BaseTransition<Float>(target, duration) {
 
-    override fun captureStartValues(transitionValues: TransitionValues) {
-        val view = transitionValues.view
+    override fun captureValues(view: View): Float {
         require(view.scaleX == view.scaleY)
-        transitionValues.values[ScaleProperty] = view.scaleX
+        return view.scaleX
     }
 
-    override fun captureEndValues(transitionValues: TransitionValues) {
-        val view = transitionValues.view
-        require(view.scaleX == view.scaleY)
-        transitionValues.values[ScaleProperty] = view.scaleX
-    }
-
-    override fun createAnimatorFromValues(
-        sceneRoot: ViewGroup,
-        startValues: TransitionValues,
-        endValues: TransitionValues
-    ): Animator? {
-        val startScale = startValues.values[ScaleProperty] as Float
-        val endScale = endValues.values[ScaleProperty] as Float
-        val view = endValues.view
-
-        return ValueAnimator.ofFloat(startScale, startScale * 1.2f, endScale).apply {
+    override fun createAnimator(startView: View, startValue: Float, endView: View, endValue: Float): Animator? {
+        return ValueAnimator.ofFloat(startValue, startValue * 1.2f, endValue).apply {
             addUpdateListener {
                 val scale = it.animatedValue as Float
-                view.scaleX = scale
-                view.scaleY = scale
+                endView.scaleX = scale
+                endView.scaleY = scale
             }
         }
     }

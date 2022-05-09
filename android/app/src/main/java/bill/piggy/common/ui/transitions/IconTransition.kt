@@ -28,15 +28,11 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.View
-import android.view.ViewGroup
-import androidx.transition.TransitionValues
 import bill.piggy.BuildConfig
 import bill.piggy.common.ui.toolbar
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.max
-
-private const val DrawableProperty = "bill.piggy.common.ui.transitions:IconTransition:drawable"
 
 private const val MIN_DEGREES = 0f
 private const val MAX_DEGREES = 360f
@@ -46,51 +42,41 @@ class IconTransition(
     val reverse: Boolean = false,
     target: String? = null,
     duration: Long? = null
-) : BaseTransition(target, duration) {
+) : BaseTransition<Drawable?>(target, duration) {
 
-    override fun captureStartValues(transitionValues: TransitionValues) = captureValues(transitionValues)
-
-    override fun captureEndValues(transitionValues: TransitionValues) = captureValues(transitionValues)
-
-    private fun captureValues(transitionValues: TransitionValues) {
-        when (val view = transitionValues.view) {
-            is FloatingActionButton -> transitionValues.values[DrawableProperty] = view.drawable
-            is AppBarLayout -> transitionValues.values[DrawableProperty] = view.toolbar.navigationIcon
+    override fun captureValues(view: View): Drawable? {
+        return when (view) {
+            is FloatingActionButton -> view.drawable
+            is AppBarLayout -> view.toolbar.navigationIcon
             else -> {
                 if (BuildConfig.DEBUG) {
                     throw IllegalArgumentException("Unknown view type")
+                } else {
+                    null
                 }
             }
         }
     }
 
-    override fun createAnimatorFromValues(
-        sceneRoot: ViewGroup,
-        startValues: TransitionValues,
-        endValues: TransitionValues
-    ): Animator? {
+    override fun createAnimator(startView: View, startValue: Drawable?, endView: View, endValue: Drawable?): Animator? {
+        if (startValue == null || endValue == null) return null
 
-        val iconSetter = IconSetterStrategy.fromView(endValues.view) ?: return null
+        require(startValue.intrinsicHeight == endValue.intrinsicHeight)
+        require(startValue.intrinsicWidth == endValue.intrinsicWidth)
 
-        val startDrawable = startValues.values[DrawableProperty] as Drawable
-        val endDrawable = endValues.values[DrawableProperty] as Drawable
-
-        require(startDrawable.intrinsicHeight == endDrawable.intrinsicHeight)
-        require(startDrawable.intrinsicWidth == endDrawable.intrinsicWidth)
-
-        val width = max(startDrawable.intrinsicWidth, 1)
-        val height = max(startDrawable.intrinsicHeight, 1)
+        val width = max(startValue.intrinsicWidth, 1)
+        val height = max(startValue.intrinsicHeight, 1)
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        check(canvas.width == width && canvas.height == height)
 
-        iconSetter.setIcon(startDrawable)
+        val iconSetter = IconSetterStrategy.fromView(endView) ?: return null
+        iconSetter.setIcon(startValue)
 
         return ValueAnimator.ofFloat(MIN_DEGREES, MAX_DEGREES).apply {
             addUpdateListener {
                 val degrees = it.animatedValue as Float
-                val drawable = (if (degrees <= MID_DEGREES) startDrawable else endDrawable)
+                val drawable = (if (degrees <= MID_DEGREES) startValue else endValue)
 
                 if (degrees == MAX_DEGREES) {
                     iconSetter.setIcon(drawable)

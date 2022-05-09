@@ -22,46 +22,27 @@ package bill.piggy.common.ui.transitions
 import android.animation.Animator
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
-import android.view.ViewGroup
-import androidx.transition.TransitionValues
+import android.view.View
 import bill.piggy.common.ui.toolbar
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.roundToInt
-
-private const val TextProperty = "bill.piggy.common.ui.transitions:TextTransition:text"
 
 class TextTransition(
     val reverse: Boolean = false,
     target: String? = null,
     duration: Long? = null
-) : BaseTransition(target, duration) {
+) : BaseTransition<String>(target, duration) {
 
-    override fun captureStartValues(transitionValues: TransitionValues) {
-        val appbar = transitionValues.view
-        require(appbar is AppBarLayout)
-
-        transitionValues.values[TextProperty] = appbar.toolbar.title.trim().toString()
+    override fun captureValues(view: View): String {
+        require(view is AppBarLayout)
+        return view.toolbar.title.trim().toString()
     }
 
-    override fun captureEndValues(transitionValues: TransitionValues) {
-        val appbar = transitionValues.view
-        require(appbar is AppBarLayout)
+    override fun createAnimator(startView: View, startValue: String, endView: View, endValue: String): Animator? {
+        val toolbar = (endView as AppBarLayout).toolbar
+        toolbar.title = startValue
 
-        transitionValues.values[TextProperty] = appbar.toolbar.title.trim().toString()
-    }
-
-    override fun createAnimatorFromValues(
-        sceneRoot: ViewGroup,
-        startValues: TransitionValues,
-        endValues: TransitionValues
-    ): Animator? {
-        val start = startValues.values[TextProperty] as String
-        val end = endValues.values[TextProperty] as String
-
-        val toolbar = (endValues.view as AppBarLayout).toolbar
-        toolbar.title = start
-
-        return ValueAnimator.ofObject(TextEvaluator(reverse), start, end).apply {
+        return ValueAnimator.ofObject(TextEvaluator(reverse), startValue, endValue).apply {
             addUpdateListener {
                 toolbar.title = it.animatedValue as String
             }

@@ -20,35 +20,55 @@
 package bill.piggy.common.ui.transitions
 
 import android.animation.Animator
+import android.view.View
 import android.view.ViewGroup
 import androidx.transition.Transition
 import androidx.transition.TransitionSet
 import androidx.transition.TransitionValues
+import java.util.UUID
 
-abstract class BaseTransition(
+abstract class BaseTransition<T>(
     target: String? = null,
     duration: Long? = null
 ) : Transition() {
+
+    private val uuid = UUID.randomUUID().toString()
 
     init {
         target?.let { super.addTarget(it) }
         duration?.let { super.setDuration(it) }
     }
 
-    override fun createAnimator(
+    final override fun captureStartValues(transitionValues: TransitionValues) {
+        transitionValues.values[uuid] = captureValues(transitionValues.view)
+    }
+
+    final override fun captureEndValues(transitionValues: TransitionValues) {
+        transitionValues.values[uuid] = captureValues(transitionValues.view)
+    }
+
+    abstract fun captureValues(view: View): T
+
+    @Suppress("UNCHECKED_CAST")
+    final override fun createAnimator(
         sceneRoot: ViewGroup,
         startValues: TransitionValues?,
         endValues: TransitionValues?
     ): Animator? {
         require(startValues != null && endValues != null)
-        return createAnimatorFromValues(sceneRoot, startValues, endValues)
+        val startView = startValues.view
+        val startValue = startValues.values[uuid] as T
+        val endView = endValues.view
+        val endValue = endValues.values[uuid] as T
+        return createAnimator(startView, startValue, endView, endValue)
     }
 
     // TODO: Find a better name
-    abstract fun createAnimatorFromValues(
-        sceneRoot: ViewGroup,
-        startValues: TransitionValues,
-        endValues: TransitionValues
+    abstract fun createAnimator(
+        startView: View,
+        startValue: T,
+        endView: View,
+        endValue: T
     ): Animator?
 }
 
