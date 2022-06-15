@@ -49,9 +49,17 @@ jobs:
       name: staging
 
     steps:
-      - name: Run tests
-        working-directory: ${{github.workspace}}/android
-        run: ./gradlew test
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'gradle'
+
+    - name: Run tests
+      working-directory: ${{github.workspace}}/android
+      run: ./gradlew test
 
   deploy-prod:
     runs-on: ubuntu-20.04
@@ -61,7 +69,15 @@ jobs:
       name: prod
 
     steps:
-      - name: Run tests
-        working-directory: ${{github.workspace}}/android
-        run: ./gradlew test
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'gradle'
+
+    - name: Run tests
+      working-directory: ${{github.workspace}}/android
+      run: ./gradlew test
 
