@@ -31,10 +31,11 @@ on:
         options:
           - all
           - demo
-          - thepilatesclass
+          - piggy
 
 jobs:
   demo-staging:
+    if: inputs.flavor == 'all' || inputs.flavor == 'demo'
     runs-on: ubuntu-latest
 
     environment:
@@ -54,6 +55,7 @@ jobs:
       run: ./gradlew
 
   demo-prod:
+    if: inputs.flavor == 'all' || inputs.flavor == 'demo'
     runs-on: ubuntu-latest
     needs: demo-staging
 
@@ -74,6 +76,7 @@ jobs:
       run: ./gradlew
 
   piggy-staging:
+    if: inputs.flavor == 'all' || inputs.flavor == 'piggy'
     runs-on: ubuntu-latest
 
     environment:
@@ -93,6 +96,7 @@ jobs:
       run: ./gradlew
 
   piggy-prod:
+    if: inputs.flavor == 'all' || inputs.flavor == 'piggy'
     runs-on: ubuntu-latest
     needs: piggy-staging
 
