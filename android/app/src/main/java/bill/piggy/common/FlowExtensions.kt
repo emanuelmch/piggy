@@ -35,11 +35,15 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-inline fun <T> Flow<T>.collectInBackground(scope: CoroutineScope, crossinline action: suspend (value: T) -> Unit) {
+@Suppress("NOTHING_TO_INLINE")
+// TODO: Parameter "action" should actually be "crossinline", figure out why the compiler won't allow us
+inline fun <T> Flow<T>.collectInBackground(scope: CoroutineScope, noinline action: suspend (value: T) -> Unit) {
     scope.launch { this@collectInBackground.collect(action) }
 }
 
-inline fun <T> Flow<T>.collectInBackground(owner: LifecycleOwner, crossinline action: suspend (value: T) -> Unit) {
+@Suppress("NOTHING_TO_INLINE")
+// TODO: Parameter "action" should actually be "crossinline", figure out why the compiler won't allow us
+inline fun <T> Flow<T>.collectInBackground(owner: LifecycleOwner, noinline action: suspend (value: T) -> Unit) {
     owner.lifecycleScope.launch { this@collectInBackground.flowWithLifecycle(owner.lifecycle).collect(action) }
 }
 
