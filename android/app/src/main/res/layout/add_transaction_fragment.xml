@@ -27,7 +27,7 @@
 
         <variable
             name="viewModel"
-            type="bill.piggy.features.add_transaction.AddTransactionViewModel" />
+            type="bill.piggy.features.addtransaction.AddTransactionViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

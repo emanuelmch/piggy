@@ -22,7 +22,7 @@
 
 package bill.piggy.features
 
-import bill.piggy.features.add_transaction.AddTransactionViewModel
+import bill.piggy.features.addtransaction.AddTransactionViewModel
 import bill.piggy.features.monthly.MonthlyBudgetViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module

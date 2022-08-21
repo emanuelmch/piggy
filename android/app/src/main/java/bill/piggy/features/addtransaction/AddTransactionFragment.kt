@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package bill.piggy.features.add_transaction
+package bill.piggy.features.addtransaction
 
 import android.os.Bundle
 import android.view.LayoutInflater

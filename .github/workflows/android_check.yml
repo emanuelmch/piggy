@@ -55,5 +55,5 @@ jobs:
 
     - name: Run lint
       working-directory: ${{github.workspace}}/android
-      run: ./gradlew lint
+      run: ./gradlew lint lintKotlin
 
