@@ -30,7 +30,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
 import bill.piggy.common.ui.transitions.ExpandAndShrinkTransition
@@ -39,6 +38,7 @@ import bill.piggy.common.ui.transitions.TextTransition
 import bill.piggy.common.ui.transitions.transitions
 import bill.piggy.databinding.AddTransactionFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -79,29 +79,38 @@ class AddTransactionFragment : Fragment() {
     }
 
     private fun setupFields(binding: AddTransactionFragmentBinding, viewModel: AddTransactionViewModel) {
-        binding.amount.editText?.addFilters(CurrencyTextInputFilter)
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            binding.amount.editText?.addFilters(CurrencyTextInputFilter)
             val payeeNames = viewModel.payees.first().map { it.name }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, payeeNames)
             (binding.payee.editText as AutoCompleteTextView).apply {
                 threshold = Int.MAX_VALUE
-                setAdapter(adapter)
+                launch(Dispatchers.Main) {
+                    setAdapter(adapter)
+                }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val budgetNames = viewModel.budgets.first().map { it.name }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, budgetNames)
             (binding.budget.editText as AutoCompleteTextView).apply {
                 threshold = Int.MAX_VALUE
-                setAdapter(adapter)
+                launch(Dispatchers.Main) {
+                    setAdapter(adapter)
+                }
             }
         }
     }
 
     private fun setupListeners(binding: AddTransactionFragmentBinding) {
-        binding.toolbar.setNavigationOnClickListener { view ->
-            view.findNavController().navigateUp()
+        binding.toolbar.setNavigationOnClickListener {
+            activity?.supportFragmentManager?.popBackStack()
         }
+    }
+
+    companion object {
+
+        fun create() = AddTransactionFragment()
     }
 }

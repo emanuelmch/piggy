@@ -22,7 +22,7 @@
 
 package bill.piggy.features.monthly
 
-import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import bill.piggy.R
@@ -30,6 +30,7 @@ import bill.piggy.common.collectInBackground
 import bill.piggy.common.ui.BindableViewModel
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
+import bill.piggy.features.addtransaction.AddTransactionFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -61,8 +62,8 @@ sealed class MonthlyBudgetUiState(
         override fun update(budgets: List<BindableViewModel>) = Idle(budgets)
     }
 
-    class Navigating(budgets: List<BindableViewModel>, @IdRes val direction: Int) : MonthlyBudgetUiState(budgets) {
-        override fun update(budgets: List<BindableViewModel>) = Navigating(budgets, direction)
+    class Navigating(budgets: List<BindableViewModel>, val destination: Fragment) : MonthlyBudgetUiState(budgets) {
+        override fun update(budgets: List<BindableViewModel>) = Navigating(budgets, destination)
     }
 }
 
@@ -88,7 +89,7 @@ class MonthlyBudgetViewModel(
         val state = uiState.value
         check(state is MonthlyBudgetUiState.Idle)
 
-        _uiState.value = MonthlyBudgetUiState.Navigating(state.budgets, R.id.action_add_transaction)
+        _uiState.value = MonthlyBudgetUiState.Navigating(state.budgets, AddTransactionFragment.create())
     }
 
     fun onFinishedNavigation() {

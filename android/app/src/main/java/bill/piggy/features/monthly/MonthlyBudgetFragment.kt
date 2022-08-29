@@ -27,8 +27,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.commit
+import bill.piggy.R
 import bill.piggy.common.collectInBackground
 import bill.piggy.databinding.MonthlyBudgetFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -54,15 +54,12 @@ class MonthlyBudgetFragment : Fragment() {
     private fun setupNavigation(binding: MonthlyBudgetFragmentBinding) {
         viewModel.uiState.collectInBackground(viewLifecycleOwner) { uiState ->
             if (uiState is MonthlyBudgetUiState.Navigating) {
-                findNavController().navigate(
-                    uiState.direction,
-                    null,
-                    null,
-                    FragmentNavigatorExtras(
-                        binding.appbar to "transition_appbar",
-                        binding.addButton to "transition_fab"
-                    )
-                )
+                activity?.supportFragmentManager?.commit {
+                    addSharedElement(binding.appbar, "transition_appbar")
+                    addSharedElement(binding.addButton, "transition_fab")
+                    replace(R.id.main_container, uiState.destination)
+                    addToBackStack(null)
+                }
                 viewModel.onFinishedNavigation()
             }
         }
