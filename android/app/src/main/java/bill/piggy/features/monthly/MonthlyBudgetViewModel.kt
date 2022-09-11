@@ -34,6 +34,7 @@ import bill.piggy.features.addtransaction.AddTransactionFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
 data class CategoryViewModel(val name: String) : BindableViewModel {
     override val layoutId get() = R.layout.monthly_budget_item_category
@@ -77,10 +78,10 @@ class MonthlyBudgetViewModel(
     init {
         budgetRepository.watchAll()
             .map(this::budgetsToViewModels)
-            .collectInBackground(viewModelScope) {
+            .collectInBackground(viewModelScope) { budgets ->
                 val value = _uiState.value
                 check(value is MonthlyBudgetUiState.Loading || value is MonthlyBudgetUiState.Idle)
-                _uiState.value = value.update(it)
+                _uiState.update { it.update(budgets) }
             }
     }
 
@@ -89,13 +90,13 @@ class MonthlyBudgetViewModel(
         val state = uiState.value
         check(state is MonthlyBudgetUiState.Idle)
 
-        _uiState.value = MonthlyBudgetUiState.Navigating(state.budgets, AddTransactionFragment.create())
+        _uiState.update { MonthlyBudgetUiState.Navigating(state.budgets, AddTransactionFragment.create()) }
     }
 
     fun onFinishedNavigation() {
         val state = uiState.value
         check(state is MonthlyBudgetUiState.Navigating)
-        _uiState.value = MonthlyBudgetUiState.Idle(state.budgets)
+        _uiState.update { MonthlyBudgetUiState.Idle(state.budgets) }
     }
 
     // Processing functions

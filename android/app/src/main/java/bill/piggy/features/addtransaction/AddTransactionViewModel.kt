@@ -30,6 +30,7 @@ import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -57,7 +58,7 @@ class AddTransactionViewModel(
         val newAmount = CurrencyConverter.moneyToCents(newValue)
         val newTransaction = state.transaction.copy(amount = newAmount)
 
-        _uiState.value = state.copy(transaction = newTransaction, amountInCurrency = newValue)
+        _uiState.update { it.copy(transaction = newTransaction, amountInCurrency = newValue) }
     }
 
     fun onPayeeChanged(payeeName: String) {
@@ -72,7 +73,7 @@ class AddTransactionViewModel(
                     state.transaction.copy(payee = newPayee)
                 }
 
-            _uiState.value = state.copy(transaction = newTransaction)
+            _uiState.update { it.copy(transaction = newTransaction) }
         }
     }
 
@@ -83,7 +84,7 @@ class AddTransactionViewModel(
             val newBudget = budgets.find { it.name == budgetName }!!
             val newTransaction = state.transaction.copy(budget = newBudget)
 
-            _uiState.value = state.copy(transaction = newTransaction)
+            _uiState.update { it.copy(transaction = newTransaction) }
         }
     }
 }
