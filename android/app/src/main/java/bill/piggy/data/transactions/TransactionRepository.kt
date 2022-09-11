@@ -24,15 +24,26 @@ package bill.piggy.data.transactions
 
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.payees.Payee
+import kotlinx.coroutines.flow.map
 
-data class Transaction(val amount: Long, val payee: Payee, val budget: Budget) {
+data class Transaction(val amountInCents: Long, val payee: Payee, val budget: Budget) {
 
     val isValid: Boolean
-        get() = amount > 0 && payee.isValid && budget.isValid
+        get() = amountInCents > 0 && payee.isValid && budget.isValid
 
     companion object {
-        val Invalid = Transaction(amount = 0, payee = Payee.Invalid, budget = Budget.Invalid)
+        val Invalid = Transaction(amountInCents = 0, payee = Payee.Invalid, budget = Budget.Invalid)
     }
 }
 
-class TransactionRepository
+class TransactionRepository(
+    private val localDataSource: TransactionLocalDataSource
+) {
+
+    fun watchAll() = localDataSource.watchAll().map { it.map(RoomTransaction::asTransaction) }
+
+    fun insert(transaction: Transaction) = localDataSource.insert(transaction.asRoomTransaction)
+
+    private val Transaction.asRoomTransaction: PartialRoomTransaction
+        get() = PartialRoomTransaction(payeeId = payee.uid, budgetId = budget.uid, amountInCents = amountInCents)
+}

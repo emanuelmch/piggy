@@ -25,7 +25,7 @@ package bill.piggy.data.payees
 import bill.piggy.data.budgets.Budget
 
 data class Payee(
-    val uid: Int,
+    val uid: Long,
     val name: String,
     val preferredBudget: Budget?
 ) {

@@ -25,6 +25,7 @@ package bill.piggy.data
 import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.data.common.LocalDatabase
 import bill.piggy.data.payees.PayeeRepository
+import bill.piggy.data.transactions.TransactionRepository
 import org.koin.dsl.module
 
 // When this gets bigger, it should become multiple smaller modules
@@ -33,7 +34,9 @@ val dataModules = module {
     single { LocalDatabase.instance }
     single { get<LocalDatabase>().budgetDataSource() }
     single { get<LocalDatabase>().payeeDataSource() }
+    single { get<LocalDatabase>().transactionDataSource() }
 
     single { BudgetRepository(get()) }
     single { PayeeRepository(get()) }
+    single { TransactionRepository(get()) }
 }

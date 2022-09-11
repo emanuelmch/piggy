@@ -31,6 +31,7 @@ import bill.piggy.common.ui.BindableViewModel
 import bill.piggy.data.budgets.Budget
 import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.features.addtransaction.AddTransactionFragment
+import bill.piggy.features.expenses.ExpensesFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -41,9 +42,21 @@ data class CategoryViewModel(val name: String) : BindableViewModel {
     override val viewType get() = 0
 }
 
-data class BudgetViewModel(val budget: Budget) : BindableViewModel {
+data class BudgetViewModel(val budget: Budget, val clickHandler: () -> Unit = {}) : BindableViewModel {
     override val layoutId get() = R.layout.monthly_budget_item_budget
     override val viewType get() = 1
+
+    fun onClick() = clickHandler()
+
+    override fun equals(other: Any?): Boolean {
+        return other is BudgetViewModel && budget == other.budget
+    }
+
+    override fun hashCode(): Int {
+        var result = budget.hashCode()
+        result = 31 * result + clickHandler.hashCode()
+        return result
+    }
 }
 
 sealed class MonthlyBudgetUiState(
@@ -90,7 +103,7 @@ class MonthlyBudgetViewModel(
         val state = uiState.value
         check(state is MonthlyBudgetUiState.Idle)
 
-        _uiState.update { MonthlyBudgetUiState.Navigating(state.budgets, AddTransactionFragment.create()) }
+        _uiState.update { MonthlyBudgetUiState.Navigating(it.budgets, AddTransactionFragment.create()) }
     }
 
     fun onFinishedNavigation() {
@@ -110,7 +123,9 @@ class MonthlyBudgetViewModel(
                 lastCategory = budget.category
             }
 
-            viewModels += BudgetViewModel(budget)
+            viewModels += BudgetViewModel(budget) {
+                _uiState.update { MonthlyBudgetUiState.Navigating(it.budgets, ExpensesFragment.create()) }
+            }
         }
         return viewModels
     }

@@ -35,6 +35,8 @@ import bill.piggy.data.budgets.BudgetLocalDataSource
 import bill.piggy.data.budgets.RoomBudget
 import bill.piggy.data.payees.PartialRoomPayee
 import bill.piggy.data.payees.PayeeLocalDataSource
+import bill.piggy.data.transactions.PartialRoomTransaction
+import bill.piggy.data.transactions.TransactionLocalDataSource
 
 // Yeah, yeah, I know I should be using a CoroutineWorker instead, but this is
 // just for debugging NOW and I don't wanna add a dependency just for that
@@ -81,10 +83,15 @@ private class DebugDatabasePopulator : AsyncTask<Unit, Unit, Unit>() {
     }
 }
 
-@Database(entities = [RoomBudget::class, PartialRoomPayee::class], version = 1, exportSchema = false)
+@Database(
+    entities = [RoomBudget::class, PartialRoomPayee::class, PartialRoomTransaction::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun budgetDataSource(): BudgetLocalDataSource
     abstract fun payeeDataSource(): PayeeLocalDataSource
+    abstract fun transactionDataSource(): TransactionLocalDataSource
 
     object DebugOnlyDatabaseCreator : RoomDatabase.Callback() {
 

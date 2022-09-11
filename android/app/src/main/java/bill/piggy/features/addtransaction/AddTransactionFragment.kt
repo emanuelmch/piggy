@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import bill.piggy.common.collectInBackground
 import bill.piggy.common.ui.CurrencyTextInputFilter
 import bill.piggy.common.ui.addFilters
 import bill.piggy.common.ui.transitions.ExpandAndShrinkTransition
@@ -103,8 +104,18 @@ class AddTransactionFragment : Fragment() {
     }
 
     private fun setupListeners(binding: AddTransactionFragmentBinding) {
+        viewModel.uiState.collectInBackground(viewLifecycleOwner) { uiState ->
+            if (uiState.isFinished) {
+                activity?.supportFragmentManager?.popBackStack()
+            }
+        }
+
         binding.toolbar.setNavigationOnClickListener {
             activity?.supportFragmentManager?.popBackStack()
+        }
+
+        binding.addButton.setOnClickListener {
+            viewModel.saveTransaction()
         }
     }
 

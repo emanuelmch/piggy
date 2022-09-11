@@ -23,12 +23,14 @@
 package bill.piggy.features
 
 import bill.piggy.features.addtransaction.AddTransactionViewModel
+import bill.piggy.features.expenses.ExpensesViewModel
 import bill.piggy.features.monthly.MonthlyBudgetViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 // When this gets bigger, it should become multiple smaller modules
 val featureModules = module {
-    viewModel { AddTransactionViewModel(get(), get()) }
+    viewModel { AddTransactionViewModel(get(), get(), get()) }
+    viewModel { ExpensesViewModel(get()) }
     viewModel { MonthlyBudgetViewModel(get()) }
 }

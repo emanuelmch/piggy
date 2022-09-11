@@ -28,6 +28,8 @@ import bill.piggy.common.CurrencyConverter
 import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
+import bill.piggy.data.transactions.TransactionRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -35,7 +37,8 @@ import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
     val transaction: Transaction = Transaction.Invalid,
-    val amountInCurrency: String = ""
+    val amountInCurrency: String = "",
+    val isFinished: Boolean = false,
 ) {
     val canSave: Boolean
         get() = transaction.isValid
@@ -43,7 +46,8 @@ data class AddTransactionUiState(
 
 class AddTransactionViewModel(
     private val budgetRepository: BudgetRepository,
-    private val payeeRepository: PayeeRepository
+    private val payeeRepository: PayeeRepository,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
@@ -56,7 +60,7 @@ class AddTransactionViewModel(
         val state = uiState.value
 
         val newAmount = CurrencyConverter.moneyToCents(newValue)
-        val newTransaction = state.transaction.copy(amount = newAmount)
+        val newTransaction = state.transaction.copy(amountInCents = newAmount)
 
         _uiState.update { it.copy(transaction = newTransaction, amountInCurrency = newValue) }
     }
@@ -85,6 +89,15 @@ class AddTransactionViewModel(
             val newTransaction = state.transaction.copy(budget = newBudget)
 
             _uiState.update { it.copy(transaction = newTransaction) }
+        }
+    }
+
+    // Actions
+    fun saveTransaction() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val transaction = uiState.value.transaction
+            transactionRepository.insert(transaction)
+            _uiState.update { it.copy(isFinished = true) }
         }
     }
 }

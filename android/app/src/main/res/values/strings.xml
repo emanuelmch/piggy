@@ -33,4 +33,7 @@
     <!-- Add Transaction -->
     <string name="add_transaction">Add Transaction</string>
     <string name="amount_prefix">$</string>
+
+    <!-- Expenses -->
+    <string name="expenses">Expenses</string>
 </resources>
