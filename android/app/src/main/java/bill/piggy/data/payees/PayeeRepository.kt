@@ -23,7 +23,6 @@
 package bill.piggy.data.payees
 
 import bill.piggy.data.budgets.Budget
-import kotlinx.coroutines.flow.map
 
 data class Payee(
     val uid: Int,
@@ -43,5 +42,5 @@ class PayeeRepository(
     private val localDataSource: PayeeLocalDataSource
 ) {
 
-    fun watchAll() = localDataSource.watchAll().map { it.map(RoomPayee::asPayee) }
+    fun getAll() = localDataSource.getAll().map(RoomPayee::asPayee)
 }

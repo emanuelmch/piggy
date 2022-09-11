@@ -34,7 +34,6 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import bill.piggy.data.budgets.RoomBudget
-import kotlinx.coroutines.flow.Flow
 
 @Entity(
     tableName = "payee",
@@ -66,7 +65,7 @@ interface PayeeLocalDataSource {
 
     @Transaction
     @Query("SELECT * FROM payee")
-    fun watchAll(): Flow<List<RoomPayee>>
+    fun getAll(): List<RoomPayee>
 
     @Insert
     fun insert(vararg payees: PartialRoomPayee)

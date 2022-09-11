@@ -25,13 +25,11 @@ package bill.piggy.features.addtransaction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import bill.piggy.common.CurrencyConverter
-import bill.piggy.common.eagerShare
 import bill.piggy.data.budgets.BudgetRepository
 import bill.piggy.data.payees.PayeeRepository
 import bill.piggy.data.transactions.Transaction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -43,14 +41,14 @@ data class AddTransactionUiState(
 }
 
 class AddTransactionViewModel(
-    budgetRepository: BudgetRepository,
-    payeeRepository: PayeeRepository
+    private val budgetRepository: BudgetRepository,
+    private val payeeRepository: PayeeRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState: StateFlow<AddTransactionUiState> get() = _uiState
-    val payees = eagerShare { payeeRepository.watchAll() }
-    val budgets = eagerShare { budgetRepository.watchAll() }
+    val payees by lazy { payeeRepository.getAll() }
+    val budgets by lazy { budgetRepository.getAll() }
 
     // Events
     fun onAmountChanged(newValue: String) {
@@ -66,7 +64,7 @@ class AddTransactionViewModel(
         viewModelScope.launch {
             val state = uiState.value
 
-            val newPayee = payees.first().find { it.name == payeeName }!!
+            val newPayee = payees.find { it.name == payeeName }!!
             val newTransaction =
                 if (newPayee.preferredBudget != null) {
                     state.transaction.copy(payee = newPayee, budget = newPayee.preferredBudget)
@@ -82,7 +80,7 @@ class AddTransactionViewModel(
         viewModelScope.launch {
             val state = uiState.value
 
-            val newBudget = budgets.first().find { it.name == budgetName }!!
+            val newBudget = budgets.find { it.name == budgetName }!!
             val newTransaction = state.transaction.copy(budget = newBudget)
 
             _uiState.value = state.copy(transaction = newTransaction)

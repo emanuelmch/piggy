@@ -1,3 +1,4 @@
+// ktlint-disable filename
 /*
  * Copyright (c) 2022 Emanuel Machado da Silva
  *
@@ -23,16 +24,10 @@
 package bill.piggy.common
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 @Suppress("NOTHING_TO_INLINE")
@@ -45,10 +40,4 @@ inline fun <T> Flow<T>.collectInBackground(scope: CoroutineScope, noinline actio
 // TODO: Parameter "action" should actually be "crossinline", figure out why the compiler won't allow us
 inline fun <T> Flow<T>.collectInBackground(owner: LifecycleOwner, noinline action: suspend (value: T) -> Unit) {
     owner.lifecycleScope.launch { this@collectInBackground.flowWithLifecycle(owner.lifecycle).collect(action) }
-}
-
-inline fun <T> ViewModel.eagerShare(crossinline flowFactory: () -> Flow<T>): Flow<T> {
-    val shared = MutableSharedFlow<T>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    viewModelScope.launch { flowFactory().take(1).collect { shared.emit(it) } }
-    return shared
 }

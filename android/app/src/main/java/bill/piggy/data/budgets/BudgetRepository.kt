@@ -43,5 +43,6 @@ class BudgetRepository(
     private val localDataSource: BudgetLocalDataSource
 ) {
 
+    fun getAll() = localDataSource.getAll().map(RoomBudget::asBudget)
     fun watchAll() = localDataSource.watchAll().map { it.map(RoomBudget::asBudget) }
 }

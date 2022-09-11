@@ -39,7 +39,6 @@ import bill.piggy.common.ui.transitions.transitions
 import bill.piggy.databinding.AddTransactionFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class AddTransactionFragment : Fragment() {
@@ -81,7 +80,7 @@ class AddTransactionFragment : Fragment() {
     private fun setupFields(binding: AddTransactionFragmentBinding, viewModel: AddTransactionViewModel) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             binding.amount.editText?.addFilters(CurrencyTextInputFilter)
-            val payeeNames = viewModel.payees.first().map { it.name }
+            val payeeNames = viewModel.payees.map { it.name }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, payeeNames)
             (binding.payee.editText as AutoCompleteTextView).apply {
                 threshold = Int.MAX_VALUE
@@ -92,7 +91,7 @@ class AddTransactionFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val budgetNames = viewModel.budgets.first().map { it.name }
+            val budgetNames = viewModel.budgets.map { it.name }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, budgetNames)
             (binding.budget.editText as AutoCompleteTextView).apply {
                 threshold = Int.MAX_VALUE

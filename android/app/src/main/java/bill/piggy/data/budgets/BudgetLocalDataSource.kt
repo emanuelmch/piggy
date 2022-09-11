@@ -44,11 +44,14 @@ data class RoomBudget(
 @Dao
 interface BudgetLocalDataSource {
 
-    @Query("SELECT * FROM budget")
-    fun watchAll(): Flow<List<RoomBudget>>
-
     @Query("SELECT * FROM budget WHERE name = :name LIMIT 1")
     fun getByName(name: String): RoomBudget
+
+    @Query("SELECT * FROM budget")
+    fun getAll(): List<RoomBudget>
+
+    @Query("SELECT * FROM budget")
+    fun watchAll(): Flow<List<RoomBudget>>
 
     @Insert
     fun insert(vararg budgets: RoomBudget)
